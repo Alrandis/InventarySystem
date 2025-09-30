@@ -1,0 +1,2 @@
+# InventarySystem
+Система инвентаря
