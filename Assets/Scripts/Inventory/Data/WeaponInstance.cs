@@ -8,10 +8,10 @@ public class WeaponInstance
     public int Damage;
     public float AttackSpeed;
 
-    public WeaponInstance(WeaponItem weapon, int StartingDamage, float StartingAttackSpeed) 
+    public WeaponInstance(WeaponItem weapon, int startingDamage, float startingAttackSpeed) 
     {
         WeaponType = weapon;
-        Damage = StartingDamage;
-        AttackSpeed = StartingAttackSpeed;
+        Damage = startingDamage;
+        AttackSpeed = startingAttackSpeed;
     }
 }
