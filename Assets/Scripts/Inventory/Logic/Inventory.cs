@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class Inventory : MonoBehaviour
 {
@@ -10,15 +12,22 @@ public class Inventory : MonoBehaviour
     // Ограничиваем доступ из вне, чтобы в случае чего ни кто не мог изменить инвентарь, кроме него самого
     public IReadOnlyList<IItemInstance> Items => _items;
 
+    // События которые будет слушать UI
+    public event Action<IItemInstance> OnItemAdded;
+    public event Action<IItemInstance> OnItemRemoved;
+    public event Action<InventorySortType> OnInventorySorted;
+
     public void AddItem(IItemInstance itemToAdd)
     {
         _items.Add(itemToAdd);
+        OnItemAdded?.Invoke(itemToAdd);
         Debug.Log($"Добавлен предмет: {itemToAdd.ItemData.Name}");
     }
 
     public void RemoveItem(IItemInstance itemToRemove)
     {
         _items.Remove(itemToRemove);
+        OnItemRemoved?.Invoke(itemToRemove);
         Debug.Log($"Удален предмет: {itemToRemove.ItemData.Name}");
     }
 
@@ -45,6 +54,7 @@ public class Inventory : MonoBehaviour
             default:
                 break; 
         }
+        OnInventorySorted?.Invoke(sortType);
     }
 }
 
