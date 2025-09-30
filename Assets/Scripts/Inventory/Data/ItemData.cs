@@ -7,6 +7,7 @@ public abstract class ItemData : ScriptableObject
     public string Description;
     public Sprite Icon;
     public GameObject PreviewPrefab;
+    public ItemType ItemType;
 }
 
 public enum ItemType
