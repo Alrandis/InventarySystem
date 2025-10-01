@@ -1,59 +1,80 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-public class ItemSlotUI : MonoBehaviour
-{
-    [SerializeField] private Image itemIcon;
-    [SerializeField] private TMP_Text stackText;
-    [SerializeField] private GameObject selectionHighlight;
+using TMPro;
+using UnityEngine.EventSystems;
 
-    private IItemInstance currentItem;
+// Каждая ячейка инвентаря
+public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
+{
+    [SerializeField] private Image _itemIcon;         // Слот для иконки
+    [SerializeField] private TextMeshProUGUI _stackText; // Текст для количества в стеке
+    [SerializeField] private GameObject _selectionHighlight; // Подсветка выбранного предмета
+
+    private IItemInstance _currentItem;               // Предмет, который хранится в этом слоте
+    private bool _isSelected = false;
 
     public void SetItem(IItemInstance item)
     {
-        currentItem = item;
+        _currentItem = item;
 
-        if (item == null)
+        if (_currentItem != null)
         {
-            itemIcon.gameObject.SetActive(false);
-            stackText.text = "";
-        }
-        else
-        {
-            itemIcon.gameObject.SetActive(true);
-            itemIcon.sprite = item.ItemData.Icon;
+            _itemIcon.sprite = _currentItem.ItemData.Icon;
+            _itemIcon.enabled = true;
 
-            if (item is IStackable stackable)
+            if (_currentItem is IStackable stackable && stackable.CurrentStack > 1)
             {
-                stackText.text = stackable.CurrentStack.ToString();
+                _stackText.text = stackable.CurrentStack.ToString();
+                _stackText.enabled = true;
             }
             else
             {
-                stackText.text = "";
+                _stackText.enabled = false;
             }
+        }
+        else
+        {
+            Clear();
         }
     }
 
     public void Clear()
     {
-        SetItem(null);
+        _currentItem = null;
+        _itemIcon.sprite = null;
+        _itemIcon.enabled = false;
+        _stackText.text = "";
+        _stackText.enabled = false;
+        Deselect();
     }
 
     public void Select()
     {
-        selectionHighlight.SetActive(true);
+        _isSelected = true;
+        _selectionHighlight.SetActive(true);
     }
 
     public void Deselect()
     {
-        selectionHighlight.SetActive(false);
+        _isSelected = false;
+        _selectionHighlight.SetActive(false);
     }
 
-    public void OnClick()
+    // Клик по слоту
+    public void OnPointerClick(PointerEventData eventData)
     {
-        if (currentItem is IUsableItem usable)
+        if (_currentItem == null) return;
+
+        // Используем предмет, если он реализует IUsableItem
+        if (_currentItem is IUsableItem usable)
         {
             usable.Use();
         }
+
+        // Можно здесь добавить логику выделения
+        if (!_isSelected)
+            Select();
+        else
+            Deselect();
     }
 }
