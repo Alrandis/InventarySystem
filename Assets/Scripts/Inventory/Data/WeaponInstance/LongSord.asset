@@ -17,6 +17,6 @@ MonoBehaviour:
   Icon: {fileID: 0}
   PreviewPrefab: {fileID: 0}
   ItemType: 0
-  DefaultDamage: 0
-  DefaultAttackSpeed: 0
+  DefaultDamage: 25
+  DefaultAttackSpeed: 1
   IsTwoHanded: 0

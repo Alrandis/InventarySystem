@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287a66310530f0345b9c10d0f5d8e10a, type: 3}
   m_Name: HealthPotion
   m_EditorClassIdentifier: 
-  Name: 
+  Name: "\u0417\u0435\u043B\u044C\u0435 \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
   Description: 
   Icon: {fileID: 0}
   PreviewPrefab: {fileID: 0}
-  ItemType: 0
-  HealAmount: 0
-  MaxStack: 0
+  ItemType: 2
+  HealAmount: 50
+  MaxStack: 10
