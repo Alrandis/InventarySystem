@@ -4,13 +4,13 @@ public class ArmorInstance : IItemInstance
 {
     public ArmorItem ArmorType;
 
-    public int Defence;
+    public int Defense;
 
     public ItemData ItemData => ArmorType;
 
     public ArmorInstance(ArmorItem armor, int defaulDefense)
     {
         ArmorType = armor;
-        Defence = defaulDefense;
+        Defense = defaulDefense;
     }
 }
