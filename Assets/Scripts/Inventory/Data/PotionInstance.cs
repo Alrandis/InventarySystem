@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PotionInstance : IItemInstance, IStackable
+public class PotionInstance : IItemInstance, IStackable, IUsableItem
 {
     private readonly PotionItem _data;
     private int _currentStack;
@@ -32,8 +32,15 @@ public class PotionInstance : IItemInstance, IStackable
 
     public void Use()
     {
+        if (_currentStack <= 0) return;
+
+        // Применяем эффект зелья
         Debug.Log($"Выпито зелье {_data.Name}, +{HealAmount} HP");
+
         _currentStack--;
+
+        // Если стек пуст, можно уведомить инвентарь удалить предмет
+        // Для UI лучше через событие
     }
 }
 
