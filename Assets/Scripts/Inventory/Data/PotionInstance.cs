@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PotionInstance : IStackable
+public class PotionInstance : IItemInstance, IStackable
 {
     private readonly PotionItem _data;
     private int _currentStack;
@@ -11,8 +11,12 @@ public class PotionInstance : IStackable
         _currentStack = Mathf.Clamp(amount, 1, data.MaxStack);
     }
 
+    // Реализация IItemInstance
+    public ItemData ItemData => _data;
+
     public PotionItem Data => _data;
     public int HealAmount => _data.HealAmount;
+    // Реализация IStackable
     public int MaxStack => _data.MaxStack;
     public int CurrentStack => _currentStack;
 
