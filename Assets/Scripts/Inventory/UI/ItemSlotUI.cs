@@ -49,4 +49,11 @@ public class ItemSlotUI : MonoBehaviour
         selectionHighlight.SetActive(false);
     }
 
+    public void OnClick()
+    {
+        if (currentItem is IUsableItem usable)
+        {
+            usable.Use();
+        }
+    }
 }
