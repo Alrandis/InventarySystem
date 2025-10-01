@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 9030628353266430815}
   - component: {fileID: 6590424525660159267}
   - component: {fileID: 2750678768111849109}
+  - component: {fileID: 7080260093674462730}
   m_Layer: 5
   m_Name: ItemSlotUI
   m_TagString: Untagged
@@ -259,6 +260,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &7080260093674462730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7031750180211936764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 789bc63feea15ed47b1e2346b449b6da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _itemIcon: {fileID: 1264397469726588189}
+  _stackText: {fileID: 1662924620366337515}
+  _selectionHighlight: {fileID: 8062293351990999488}
 --- !u!1 &7215959372667998867
 GameObject:
   m_ObjectHideFlags: 0
