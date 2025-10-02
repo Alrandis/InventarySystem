@@ -18,6 +18,8 @@ public class ItemPickupController : MonoBehaviour
 
     private void Update()
     {
+        if (PauseManager.Instance.IsPaused) return;
+
         CheckForItem();
 
         if (_currentTarget != null && Input.GetKeyDown(KeyCode.E))

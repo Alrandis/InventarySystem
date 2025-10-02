@@ -3,6 +3,7 @@ using UnityEngine;
 public class InventoryUIController : MonoBehaviour
 {
     [SerializeField] private GameObject _inventoryPanel;
+    [SerializeField] private GameObject _pickupHintPanel;
 
     private bool _isOpen = false;
 
@@ -43,6 +44,7 @@ public class InventoryUIController : MonoBehaviour
             OpenInventory();
             // Ставим игру на паузу
             PauseManager.Instance.SetPause(true);
+            _pickupHintPanel.SetActive(false);
         }
         else
         {

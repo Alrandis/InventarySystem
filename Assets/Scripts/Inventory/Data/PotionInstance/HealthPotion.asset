@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: "\u0417\u0435\u043B\u044C\u0435 \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
   Description: 
-  Icon: {fileID: 0}
-  PreviewPrefab: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 31497127d4ee1424ebd934b1f64c7812, type: 3}
+  Prefab: {fileID: 8712261398964681198, guid: 48b6ba4e08e5f974e98891677a1defe3, type: 3}
   ItemType: 2
   HealAmount: 50
   MaxStack: 10
