@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public interface IUsableItem
@@ -6,4 +7,5 @@ public interface IUsableItem
     /// Логика использования предмета
     /// </summary>
     void Use();
+    event Action<IItemInstance> OnUsed; // уведомление, что предмет был использован
 }

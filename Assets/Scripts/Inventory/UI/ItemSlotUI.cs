@@ -32,26 +32,26 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     public void SetItem(IItemInstance item)
     {
         _currentItem = item;
-        if (_currentItem != null)
+        if (item == null)
         {
-            _itemIcon.sprite = _currentItem.ItemData.Icon;
-            _itemIcon.enabled = true;
+            Clear(); // Clear() внутри вызывает Deselect()
+            return;
+        }
 
-            if (_currentItem is IStackable stackable && stackable.CurrentStack > 1)
-            {
-                _stackText.text = stackable.CurrentStack.ToString();
-                _stackText.enabled = true;
-            }
-            else
-            {
-                _stackText.enabled = false;
-            }
+        _itemIcon.sprite = item.ItemData.Icon;
+        _itemIcon.enabled = true;
+
+        if (item is IStackable stackable)
+        {
+            _stackText.text = stackable.CurrentStack.ToString();
+            _stackText.enabled = true;
         }
         else
         {
-            Clear();
+            _stackText.enabled = false;
         }
     }
+
 
     public void Clear()
     {
@@ -81,9 +81,14 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     {
         if (_currentItem == null) return;
 
-        if (_currentItem is IUsableItem usable)
+        if (eventData.clickCount == 2 && _currentItem is IUsableItem usable)
         {
             usable.Use();
+
+            // уведомляем Inventory сразу, чтобы UI обновился
+            var inv = FindObjectOfType<Inventory>();
+            if (inv != null) inv.HandleItemUsed(_currentItem);
+
         }
 
         if (!_isSelected) Select();

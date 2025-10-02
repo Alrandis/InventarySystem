@@ -33,40 +33,98 @@ public class Inventory : MonoBehaviour
         _items = new IItemInstance[_size];
     }
 
+    // Обработка использования предмета
+    public void HandleItemUsed(IItemInstance item)
+    {
+        if (item is IStackable stackable && stackable.CurrentStack <= 0)
+        {
+            RemoveItem(item); // если пуст — удаляем
+        }
+        else
+        {
+            int idx = IndexOf(item);
+            if (idx >= 0) OnItemChanged?.Invoke(idx, _items[idx]); // если не пуст — просто обновляем UI
+        }
+    }
+
     // Добавить предмет: попытаемся встать в существующий стак, иначе в первый null-слот.
     public void AddItem(IItemInstance itemToAdd)
     {
         if (itemToAdd == null) return;
 
-        // 1) Попробовать добавить в существующий стак
+        // Если предмет стекуемый
         if (itemToAdd is IStackable addingStack)
         {
+            int remaining = addingStack.CurrentStack;
+
+            // 1. Добавляем в существующие неполные стеки
             for (int i = 0; i < _items.Length; i++)
             {
                 if (_items[i] is IStackable existStack && existStack.CanStackWith(addingStack))
                 {
-                    existStack.AddToStack(addingStack.CurrentStack);
-                    OnItemChanged?.Invoke(i, _items[i]);
-                    Debug.Log($"Добавлено в стек: {itemToAdd.ItemData.Name}, новый размер: {existStack.CurrentStack}");
-                    return;
+                    int space = existStack.MaxStack - existStack.CurrentStack;
+                    if (space > 0)
+                    {
+                        int toAdd = Mathf.Min(space, remaining);
+                        existStack.AddToStack(toAdd);
+                        remaining -= toAdd;
+                        OnItemChanged?.Invoke(i, _items[i]);
+                    }
+                    if (remaining <= 0) return; // всё добавлено
                 }
             }
+
+            // 2. Если остались предметы — создаём новые стеки в пустых слотах
+            for (int i = 0; i < _items.Length; i++)
+            {
+                if (_items[i] == null)
+                {
+                    int toPlace = Mathf.Min(addingStack.MaxStack, remaining);
+
+                    // создаём новый экземпляр стека того же типа
+                    IStackable newStack = CreateNewStackOfSameType(addingStack, toPlace);
+                    _items[i] = (IItemInstance)newStack;
+
+                    remaining -= toPlace;
+                    OnItemChanged?.Invoke(i, _items[i]);
+
+                    if (remaining <= 0) return;
+                }
+            }
+
+            if (remaining > 0)
+            {
+                Debug.LogWarning($"Инвентарь полон, осталось не добавленных предметов: {remaining}");
+            }
+
+            return;
         }
 
-        // 2) Поставить в первый свободный слот
+        // Не-стекуемые предметы
         for (int i = 0; i < _items.Length; i++)
         {
             if (_items[i] == null)
             {
                 _items[i] = itemToAdd;
                 OnItemChanged?.Invoke(i, _items[i]);
-                Debug.Log($"Добавлен предмет в слот {i}: {itemToAdd.ItemData.Name}");
                 return;
             }
         }
 
         Debug.LogWarning("Инвентарь полон, нельзя добавить предмет: " + itemToAdd.ItemData.Name);
     }
+
+    private IStackable CreateNewStackOfSameType(IStackable original, int amount)
+    {
+        if (original is PotionInstance potion)
+        {
+            return new PotionInstance(potion.Data, amount);
+        }
+
+        // если будут другие IStackable типы — добавить аналогично
+        throw new NotImplementedException("Неизвестный тип стека");
+    }
+
 
     // Удаление по индексу (для удаления части стека или целиком)
     public void RemoveItemAt(int index, int amount = 1)
@@ -81,9 +139,14 @@ public class Inventory : MonoBehaviour
             if (stack.CurrentStack <= 0)
             {
                 _items[index] = null;
+                OnItemChanged?.Invoke(index, null); // ЯВНО очищаем слот
+                Debug.Log($"Удален предмет (слот {index}): {item.ItemData.Name}");
             }
-            OnItemChanged?.Invoke(index, _items[index]);
-            Debug.Log($"Уменьшен стак (слот {index}): {item.ItemData.Name}");
+            else
+            {
+                OnItemChanged?.Invoke(index, _items[index]); // обновляем UI (число стека)
+                Debug.Log($"Уменьшен стак (слот {index}): {item.ItemData.Name}, осталось: {stack.CurrentStack}");
+            }
             return;
         }
 
@@ -93,13 +156,14 @@ public class Inventory : MonoBehaviour
         Debug.Log($"Удален предмет (слот {index}): {item.ItemData.Name}");
     }
 
-    // Удаление по инстансу (найти первый индекс и удалить)
-    public void RemoveItem(IItemInstance itemToRemove)
-    {
-        if (itemToRemove == null) return;
-        int idx = IndexOf(itemToRemove);
-        if (idx >= 0) RemoveItemAt(idx);
-    }
+
+    //// Удаление по инстансу (найти первый индекс и удалить)
+    //public void RemoveItem(IItemInstance itemToRemove)
+    //{
+    //    if (itemToRemove == null) return;
+    //    int idx = IndexOf(itemToRemove);
+    //    if (idx >= 0) RemoveItemAt(idx);
+    //}
 
     public bool Contains(IItemInstance item)
     {
@@ -183,4 +247,5 @@ public class Inventory : MonoBehaviour
 
         OnInventorySorted?.Invoke(sortType);
     }
+
 }

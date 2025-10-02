@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PotionInstance : IItemInstance, IStackable, IUsableItem
@@ -10,6 +11,9 @@ public class PotionInstance : IItemInstance, IStackable, IUsableItem
         _data = data;
         _currentStack = Mathf.Clamp(amount, 1, data.MaxStack);
     }
+
+    // Реализация IUsableItem
+    public event Action<IItemInstance> OnUsed;
 
     // Реализация IItemInstance
     public ItemData ItemData => _data;
@@ -39,8 +43,8 @@ public class PotionInstance : IItemInstance, IStackable, IUsableItem
 
         _currentStack--;
 
-        // Если стек пуст, можно уведомить инвентарь удалить предмет
-        // Для UI лучше через событие
+        // Уведомляем, что предмет использован
+        OnUsed?.Invoke(this);
     }
 }
 

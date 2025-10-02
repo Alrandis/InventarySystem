@@ -25,12 +25,14 @@ public class InventoryUI : MonoBehaviour
     {
         if (_inventory != null)
         {
-            _inventory.OnItemChanged += Inventory_OnItemChanged;
-            _inventory.OnInventorySorted += Inventory_OnInventorySorted;
+            _inventory.OnItemChanged += OnItemChanged;
+            _inventory.OnInventorySorted += OnInventorySorted;
         }
 
-        if (_sortByNameButton != null) _sortByNameButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByName); });
-        if (_sortByTypeButton != null) _sortByTypeButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByItemType); });
+        if (_sortByNameButton != null) 
+            _sortByNameButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByName); });
+        if (_sortByTypeButton != null) 
+            _sortByTypeButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByItemType); });
 
         RefreshUI();
     }
@@ -39,25 +41,29 @@ public class InventoryUI : MonoBehaviour
     {
         if (_inventory != null)
         {
-            _inventory.OnItemChanged -= Inventory_OnItemChanged;
-            _inventory.OnInventorySorted -= Inventory_OnInventorySorted;
+            _inventory.OnItemChanged -= OnItemChanged;
+            _inventory.OnInventorySorted -= OnInventorySorted;
         }
 
-        if (_sortByNameButton != null) _sortByNameButton.onClick.RemoveAllListeners();
-        if (_sortByTypeButton != null) _sortByTypeButton.onClick.RemoveAllListeners();
+        if (_sortByNameButton != null) 
+            _sortByNameButton.onClick.RemoveAllListeners();
+        if (_sortByTypeButton != null) 
+            _sortByTypeButton.onClick.RemoveAllListeners();
     }
 
-    private void Inventory_OnItemChanged(int index, IItemInstance item)
+    private void OnItemChanged(int index, IItemInstance item)
     {
         // обновляем только этот слот (если индекс валидный)
         if (index >= 0 && index < _itemSlots.Length)
         {
-            if (item != null) _itemSlots[index].SetItem(item);
-            else _itemSlots[index].Clear();
+            if (item != null) 
+                _itemSlots[index].SetItem(item);
+            else 
+                _itemSlots[index].Clear();
         }
     }
 
-    private void Inventory_OnInventorySorted(InventorySortType sortType)
+    private void OnInventorySorted(InventorySortType sortType)
     {
         // при сортировке проще перерисовать всё
         RefreshUI();
@@ -68,12 +74,12 @@ public class InventoryUI : MonoBehaviour
         int slots = _itemSlots.Length;
         for (int i = 0; i < slots; i++)
         {
-            IItemInstance item = null;
-            if (_inventory != null && i < _inventory.Size)
-                item = _inventory.Items[i];
+            IItemInstance item = (i < _inventory.Size) ? _inventory.Items[i] : null;
 
-            if (item != null) _itemSlots[i].SetItem(item);
-            else _itemSlots[i].Clear();
+            if (item != null) 
+                _itemSlots[i].SetItem(item);
+            else 
+                _itemSlots[i].Clear();
         }
     }
 
@@ -98,9 +104,9 @@ public class InventoryUI : MonoBehaviour
         int toIndex = toSlot.Index;
 
         // 1) Если стеки и можно объединить:
-        if (fromItem is IStackable fs && toItem is IStackable ts && fs.CanStackWith(ts))
+        if (fromItem is IStackable fromStackable && toItem is IStackable toStackble && fromStackable.CanStackWith(toStackble))
         {
-            ts.AddToStack(fs.CurrentStack);      // добавляем в существующий стак
+            toStackble.AddToStack(fromStackable.CurrentStack);      // добавляем в существующий стак
             // удаляем исходный стак (он полностью переместился в целевой стак)
             _inventory.RemoveItemAt(fromIndex);
             return;
