@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: "\u041D\u0430\u0433\u0440\u0443\u0434\u043D\u0438\u043A"
   Description: 
-  Icon: {fileID: 0}
-  PreviewPrefab: {fileID: 0}
+  Icon: {fileID: 21300000, guid: 21d4b36614c818f4598325a89a470c07, type: 3}
+  PreviewPrefab: {fileID: 8712261398964681198, guid: f1792952bf2d4ba4193e324c7db4dd93, type: 3}
   ItemType: 1
   DefaulDefense: 30
   ArmorType: 4

@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class ItemPickupController : MonoBehaviour
 {
-    [SerializeField] private float _pickupRange = 3f;
+    [SerializeField] private float _pickupRange = 1f;
     [SerializeField] private LayerMask _pickupLayer;
 
     private Camera _camera;
     [SerializeField] private Inventory _inventory;
 
     private PickupItem _currentTarget;
+    private Ray _ray;
 
     private void Start()
     {
@@ -29,8 +30,8 @@ public class ItemPickupController : MonoBehaviour
 
     private void CheckForItem()
     {
-        Ray ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f)); // центр экрана
-        if (Physics.Raycast(ray, out RaycastHit hit, _pickupRange, _pickupLayer))
+        _ray = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f)); // центр экрана
+        if (Physics.Raycast(_ray, out RaycastHit hit, _pickupRange, _pickupLayer))
         {
             PickupItem item = hit.collider.GetComponent<PickupItem>();
             if (item != null)
@@ -44,7 +45,7 @@ public class ItemPickupController : MonoBehaviour
             }
         }
 
-        // Если ничего не смотрим
+        // Если ничего не видим
         if (_currentTarget != null)
         {
             PickupHintUI.Instance.Hide();
