@@ -36,16 +36,33 @@ public class Inventory : MonoBehaviour
     // Обработка использования предмета
     public void HandleItemUsed(IItemInstance item)
     {
-        if (item is IStackable stackable && stackable.CurrentStack <= 0)
+        int idx = IndexOf(item);
+
+        if (item is IStackable stackable)
         {
-            RemoveItem(item); // если пуст — удаляем
+            if (stackable.CurrentStack <= 0)
+            {
+                if (idx >= 0)
+                {
+                    // Если слот был выделен, снимаем выделение сразу
+                    var ui = FindObjectOfType<InventoryUI>();
+                    if (ui != null)
+                        ui.ClearSelectionIfSlot(idx);
+
+                    RemoveItemAt(idx); // удаляем предмет
+                }
+            }
+            else
+            {
+                if (idx >= 0) OnItemChanged?.Invoke(idx, _items[idx]);
+            }
         }
         else
         {
-            int idx = IndexOf(item);
-            if (idx >= 0) OnItemChanged?.Invoke(idx, _items[idx]); // если не пуст — просто обновляем UI
+            if (idx >= 0) OnItemChanged?.Invoke(idx, _items[idx]);
         }
     }
+
 
     // Добавить предмет: попытаемся встать в существующий стак, иначе в первый null-слот.
     public void AddItem(IItemInstance itemToAdd)
@@ -135,16 +152,16 @@ public class Inventory : MonoBehaviour
 
         if (item is IStackable stack)
         {
-            stack.AddToStack(-amount);
+            stack.RemoveFromStack(amount);
             if (stack.CurrentStack <= 0)
             {
                 _items[index] = null;
-                OnItemChanged?.Invoke(index, null); // ЯВНО очищаем слот
+                OnItemChanged?.Invoke(index, null);
                 Debug.Log($"Удален предмет (слот {index}): {item.ItemData.Name}");
             }
             else
             {
-                OnItemChanged?.Invoke(index, _items[index]); // обновляем UI (число стека)
+                OnItemChanged?.Invoke(index, _items[index]);
                 Debug.Log($"Уменьшен стак (слот {index}): {item.ItemData.Name}, осталось: {stack.CurrentStack}");
             }
             return;
@@ -155,15 +172,6 @@ public class Inventory : MonoBehaviour
         OnItemChanged?.Invoke(index, null);
         Debug.Log($"Удален предмет (слот {index}): {item.ItemData.Name}");
     }
-
-
-    //// Удаление по инстансу (найти первый индекс и удалить)
-    //public void RemoveItem(IItemInstance itemToRemove)
-    //{
-    //    if (itemToRemove == null) return;
-    //    int idx = IndexOf(itemToRemove);
-    //    if (idx >= 0) RemoveItemAt(idx);
-    //}
 
     public bool Contains(IItemInstance item)
     {
@@ -206,6 +214,36 @@ public class Inventory : MonoBehaviour
             SwapItems(fromIndex, toIndex);
         }
     }
+
+    // Новый метод объединения стеков
+    public void MergeStacks(int fromIndex, int toIndex)
+    {
+        if (fromIndex < 0 || toIndex < 0 || fromIndex >= _items.Length || toIndex >= _items.Length) return;
+
+        var fromStack = _items[fromIndex] as IStackable;
+        var toStack = _items[toIndex] as IStackable;
+
+        if (fromStack == null || toStack == null) return;
+        if (!fromStack.CanStackWith(toStack)) return;
+
+        int availableSpace = toStack.MaxStack - toStack.CurrentStack;
+        int toMove = Mathf.Min(fromStack.CurrentStack, availableSpace);
+
+        if (toMove <= 0) return;
+
+        // Убираем из исходного и добавляем в целевой
+        fromStack.RemoveFromStack(toMove);
+        toStack.AddToStack(toMove);
+
+        // Если исходный стак пуст — удаляем его
+        if (fromStack.CurrentStack <= 0)
+            _items[fromIndex] = null;
+
+        // Обновляем UI
+        OnItemChanged?.Invoke(fromIndex, _items[fromIndex]);
+        OnItemChanged?.Invoke(toIndex, _items[toIndex]);
+    }
+
 
     // Сортировка: берем все не-null элементы, сортируем и кладём сначала, затем null'ы
     public void Sort(InventorySortType sortType)

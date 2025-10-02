@@ -11,6 +11,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Button _sortByTypeButton;
 
     private ItemSlotUI _draggedFromSlot;
+    private ItemSlotUI _selectedSlot;
 
     private void Awake()
     {
@@ -18,8 +19,10 @@ public class InventoryUI : MonoBehaviour
         for (int i = 0; i < _itemSlots.Length; i++)
         {
             _itemSlots[i].Init(i);
+            //_itemSlots[i].OnDropClicked += HandleDropClicked;
         }
     }
+
 
     private void OnEnable()
     {
@@ -53,13 +56,41 @@ public class InventoryUI : MonoBehaviour
 
     private void OnItemChanged(int index, IItemInstance item)
     {
-        // обновляем только этот слот (если индекс валидный)
-        if (index >= 0 && index < _itemSlots.Length)
+        if (index < 0 || index >= _itemSlots.Length) return;
+
+        if (item != null)
+            _itemSlots[index].SetItem(item);
+        else
         {
-            if (item != null) 
-                _itemSlots[index].SetItem(item);
-            else 
-                _itemSlots[index].Clear();
+            _itemSlots[index].Clear();
+
+
+            // Если слот был выделен — снять выделение
+            if (_selectedSlot == _itemSlots[index])
+            {
+                _selectedSlot.SetSelected(false);
+                _selectedSlot = null;
+            }
+        }
+    }
+
+    public void SelectSlot(ItemSlotUI slot)
+    {
+        if (_selectedSlot != null)
+            _selectedSlot.SetSelected(false);
+
+        _selectedSlot = slot;
+
+        if (_selectedSlot != null)
+            _selectedSlot.SetSelected(true);
+    }
+
+    public void ClearSelectionIfSlot(int index)
+    {
+        if (_selectedSlot != null && _selectedSlot.Index == index)
+        {
+            _selectedSlot.SetSelected(false);
+            _selectedSlot = null;
         }
     }
 
@@ -103,13 +134,17 @@ public class InventoryUI : MonoBehaviour
         int fromIndex = fromSlot.Index;
         int toIndex = toSlot.Index;
 
-        // 1) Если стеки и можно объединить:
-        if (fromItem is IStackable fromStackable && toItem is IStackable toStackble && fromStackable.CanStackWith(toStackble))
+        // 1) Если стеки и можно объединить — используем MergeStacks
+        if (fromItem is IStackable && toItem is IStackable)
         {
-            toStackble.AddToStack(fromStackable.CurrentStack);      // добавляем в существующий стак
-            // удаляем исходный стак (он полностью переместился в целевой стак)
-            _inventory.RemoveItemAt(fromIndex);
-            return;
+            var fromStack = fromItem as IStackable;
+            var toStack = toItem as IStackable;
+
+            if (fromStack.CanStackWith(toStack))
+            {
+                _inventory.MergeStacks(fromIndex, toIndex);
+                return;
+            }
         }
 
         // 2) Если целевой пустой - move
@@ -122,4 +157,5 @@ public class InventoryUI : MonoBehaviour
         // 3) Обычный swap
         _inventory.SwapItems(fromIndex, toIndex);
     }
+
 }

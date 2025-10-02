@@ -46,5 +46,10 @@ public class PotionInstance : IItemInstance, IStackable, IUsableItem
         // Уведомляем, что предмет использован
         OnUsed?.Invoke(this);
     }
+
+    public void RemoveFromStack(int amount)
+    {
+        _currentStack = Mathf.Max(0, _currentStack - amount);
+    }
 }
 

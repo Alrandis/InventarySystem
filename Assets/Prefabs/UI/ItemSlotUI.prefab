@@ -154,7 +154,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6368678908455331260
 RectTransform:
   m_ObjectHideFlags: 0
@@ -533,6 +533,7 @@ MonoBehaviour:
   _itemIcon: {fileID: 1264397469726588189}
   _stackText: {fileID: 1662924620366337515}
   _selectionHighlight: {fileID: 8062293351990999488}
+  _dropButton: {fileID: 6905647578591125093}
 --- !u!1 &7215959372667998867
 GameObject:
   m_ObjectHideFlags: 0
@@ -625,7 +626,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &702850073910660635
 RectTransform:
   m_ObjectHideFlags: 0

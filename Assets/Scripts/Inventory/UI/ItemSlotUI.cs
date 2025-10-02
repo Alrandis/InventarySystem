@@ -1,17 +1,23 @@
+using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using TMPro;
 
 public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private Image _itemIcon;
     [SerializeField] private TextMeshProUGUI _stackText;
     [SerializeField] private GameObject _selectionHighlight;
+    [SerializeField] private Button _dropButton;
+
+    public event Action<ItemSlotUI> OnDropClicked; // событие наружу
+    public event Action<ItemSlotUI> OnClicked;
 
     private IItemInstance _currentItem;
     private bool _isSelected;
+    //public bool IsSelected => _isSelected;
 
     // Drag visual
     public Image DraggedIcon { get; private set; }
@@ -19,14 +25,17 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
     public int Index { get; private set; }
 
-    public void Init(int index)
-    {
-        Index = index;
-    }
-
     private void Awake()
     {
         _canvas = GetComponentInParent<Canvas>();
+
+        _dropButton.onClick.AddListener(() => {OnDropClicked?.Invoke(this);});
+        _dropButton.gameObject.SetActive(false); // скрыта по умолчанию
+    }
+
+    public void Init(int index)
+    {
+        Index = index;
     }
 
     public void SetItem(IItemInstance item)
@@ -52,7 +61,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         }
     }
 
-
     public void Clear()
     {
         _currentItem = null;
@@ -60,40 +68,47 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         _itemIcon.enabled = false;
         _stackText.text = "";
         _stackText.enabled = false;
-        Deselect();
+    }
+
+    public void SetSelected(bool selected)
+    {
+        _isSelected = selected;
+        if (_selectionHighlight) _selectionHighlight.SetActive(_isSelected);
+        _dropButton?.gameObject.SetActive(_isSelected);
     }
 
     public IItemInstance GetItem() => _currentItem;
-
-    public void Select()
-    {
-        _isSelected = true;
-        if (_selectionHighlight) _selectionHighlight.SetActive(true);
-    }
-
-    public void Deselect()
-    {
-        _isSelected = false;
-        if (_selectionHighlight) _selectionHighlight.SetActive(false);
-    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_currentItem == null) return;
 
-        if (eventData.clickCount == 2 && _currentItem is IUsableItem usable)
+        if (eventData.clickCount == 1)
+            HandleSingleClick();
+        else if (eventData.clickCount == 2)
+            HandleDoubleClick();
+    }
+
+    private void HandleSingleClick()
+    {
+        // Управление выделением только через InventoryUI
+        var ui = FindObjectOfType<InventoryUI>();
+        if (ui != null)
+        {
+            ui.SelectSlot(this);
+        } 
+    }
+
+    private void HandleDoubleClick()
+    {
+        if (_currentItem is IUsableItem usable)
         {
             usable.Use();
-
-            // уведомляем Inventory сразу, чтобы UI обновился
             var inv = FindObjectOfType<Inventory>();
             if (inv != null) inv.HandleItemUsed(_currentItem);
-
         }
-
-        if (!_isSelected) Select();
-        else Deselect();
     }
+
 
     public void OnBeginDrag(PointerEventData eventData)
     {
