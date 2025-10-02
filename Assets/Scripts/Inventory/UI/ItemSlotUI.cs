@@ -17,7 +17,9 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
     private IItemInstance _currentItem;
     private bool _isSelected;
-    //public bool IsSelected => _isSelected;
+    private InventoryUI _inventoryUI;
+    private Inventory _inventory;
+
 
     // Drag visual
     public Image DraggedIcon { get; private set; }
@@ -33,9 +35,11 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         _dropButton.gameObject.SetActive(false); // скрыта по умолчанию
     }
 
-    public void Init(int index)
+    public void Init(int index, InventoryUI inventoryUI, Inventory inventory)
     {
         Index = index;
+        _inventoryUI = inventoryUI;
+        _inventory = inventory;
     }
 
     public void SetItem(IItemInstance item)
@@ -92,10 +96,9 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     private void HandleSingleClick()
     {
         // ”правление выделением только через InventoryUI
-        var ui = FindObjectOfType<InventoryUI>();
-        if (ui != null)
+        if (_inventoryUI != null)
         {
-            ui.SelectSlot(this);
+            _inventoryUI.SelectSlot(this);
         } 
     }
 
@@ -104,8 +107,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         if (_currentItem is IUsableItem usable)
         {
             usable.Use();
-            var inv = FindObjectOfType<Inventory>();
-            if (inv != null) inv.HandleItemUsed(_currentItem);
+            if (_inventory != null) _inventory.HandleItemUsed(_currentItem);
         }
     }
 
@@ -124,8 +126,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         // масштаб/размер
         DraggedIcon.rectTransform.sizeDelta = _itemIcon.rectTransform.sizeDelta;
 
-        var ui = FindObjectOfType<InventoryUI>();
-        if (ui != null) ui.StartDrag(this);
+        if (_inventoryUI != null) _inventoryUI.StartDrag(this);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -152,8 +153,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         if (targetSlot != null)
         {
-            var ui = FindObjectOfType<InventoryUI>();
-            if (ui != null) ui.SwapSlots(this, targetSlot);
+            if (_inventoryUI != null) _inventoryUI.SwapSlots(this, targetSlot);
         }
 
         DraggedIcon = null;

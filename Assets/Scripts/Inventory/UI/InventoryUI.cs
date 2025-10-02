@@ -18,7 +18,7 @@ public class InventoryUI : MonoBehaviour
         // инициализируем индексы слотов (слоты сделаны вручную в сцене)
         for (int i = 0; i < _itemSlots.Length; i++)
         {
-            _itemSlots[i].Init(i);
+            _itemSlots[i].Init(i, this, _inventory);
             //_itemSlots[i].OnDropClicked += HandleDropClicked;
         }
     }

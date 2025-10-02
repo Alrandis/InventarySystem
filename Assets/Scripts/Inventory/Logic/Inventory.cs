@@ -14,8 +14,9 @@ public class Inventory : MonoBehaviour
 {
     [SerializeField, Min(1)]
     private int _size = 24; // можно задать 3*8 = 24
-
     private IItemInstance[] _items;
+
+    [SerializeField] private InventoryUI _inventoryUI;
 
     // Текущий режим сортировки
     private InventorySortType _currentSort = InventorySortType.None;
@@ -44,10 +45,9 @@ public class Inventory : MonoBehaviour
             {
                 if (idx >= 0)
                 {
-                    // Если слот был выделен, снимаем выделение сразу
-                    var ui = FindObjectOfType<InventoryUI>();
-                    if (ui != null)
-                        ui.ClearSelectionIfSlot(idx);
+                    
+                    if (_inventoryUI != null)
+                        _inventoryUI.ClearSelectionIfSlot(idx);
 
                     RemoveItemAt(idx); // удаляем предмет
                 }
