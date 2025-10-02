@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,10 +19,9 @@ public class InventoryUI : MonoBehaviour
         for (int i = 0; i < _itemSlots.Length; i++)
         {
             _itemSlots[i].Init(i, this, _inventory);
-            //_itemSlots[i].OnDropClicked += HandleDropClicked;
+            _itemSlots[i].OnDropClicked += OnDropButtonPressed;
         }
     }
-
 
     private void OnEnable()
     {
@@ -158,5 +158,11 @@ public class InventoryUI : MonoBehaviour
         // 3) Обычный swap
         _inventory.SwapItems(fromIndex, toIndex);
     }
+    
+    public void OnDropButtonPressed()
+    {
+        if (_selectedSlot == null) return;
 
+        DroppedItemSpawner.DropItem(_inventory, _selectedSlot.Index);
+    }
 }

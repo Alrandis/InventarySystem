@@ -12,7 +12,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     [SerializeField] private GameObject _selectionHighlight;
     [SerializeField] private Button _dropButton;
 
-    public event Action<ItemSlotUI> OnDropClicked; // событие наружу
+    public event Action OnDropClicked; // событие наружу
     public event Action<ItemSlotUI> OnClicked;
 
     private IItemInstance _currentItem;
@@ -31,7 +31,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     {
         _canvas = GetComponentInParent<Canvas>();
 
-        _dropButton.onClick.AddListener(() => {OnDropClicked?.Invoke(this);});
+        _dropButton.onClick.AddListener(() => {OnDropClicked?.Invoke();});
         _dropButton.gameObject.SetActive(false); // скрыта по умолчанию
     }
 

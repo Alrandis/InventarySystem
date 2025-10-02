@@ -170,11 +170,6 @@ public class Inventory : MonoBehaviour
         Debug.Log($"Удален предмет (слот {index}): {item.ItemData.Name}");
     }
 
-    public bool Contains(IItemInstance item)
-    {
-        return IndexOf(item) >= 0;
-    }
-
     public int IndexOf(IItemInstance item)
     {
         return Array.IndexOf(_items, item);

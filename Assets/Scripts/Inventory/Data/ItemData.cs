@@ -6,7 +6,7 @@ public abstract class ItemData : ScriptableObject
     [TextArea]
     public string Description;
     public Sprite Icon;
-    public GameObject PreviewPrefab;
+    public GameObject Prefab;
     public ItemType ItemType;
 }
 

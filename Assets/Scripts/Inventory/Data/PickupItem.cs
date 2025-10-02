@@ -4,7 +4,8 @@ public class PickupItem : MonoBehaviour
 {
     [SerializeField] private ItemData _itemData;
     [SerializeField] private bool _isPersistent = false;
-
+    [SerializeField] private int _stackAmount = 1; // сколько в этом объекте при выбросе
+    public int StackAmount => Mathf.Max(1, _stackAmount);
     public ItemData ItemData => _itemData;
     public bool IsPersistent => _isPersistent;
 
@@ -22,11 +23,24 @@ public class PickupItem : MonoBehaviour
         }
     }
 
+    public void SetDroppedStack(int amount)
+    {
+        _isPersistent = false;
+        _stackAmount = Mathf.Max(1, amount);
+        Debug.Log($"Размер стека {_stackAmount}");
+    }
+
+
+    public void SetDropped()
+    {
+        _isPersistent = false;
+    }
+
     private IItemInstance CreateInstance()
     {
         return _itemData switch
         {
-            PotionItem potion => new PotionInstance(potion),
+            PotionItem potion => new PotionInstance(potion, _stackAmount),
             WeaponItem weapon => new WeaponInstance(weapon, weapon.DefaultDamage, weapon.DefaultAttackSpeed),
             ArmorItem armor => new ArmorInstance(armor, armor.DefaulDefense),
             _ => null
