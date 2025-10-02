@@ -6,6 +6,18 @@ public class InventoryUIController : MonoBehaviour
 
     private bool _isOpen = false;
 
+    private void OnEnable()
+    {
+        // Подписываемся на событие паузы
+        PauseManager.Instance.OnPauseChanged += HandlePauseChanged;
+    }
+
+    private void OnDisable()
+    {
+        // Отписываемся от события паузы
+        PauseManager.Instance.OnPauseChanged -= HandlePauseChanged;
+    }
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -28,21 +40,20 @@ public class InventoryUIController : MonoBehaviour
 
         if (_isOpen)
         {
-            // Открываем инвентарь
             OpenInventory();
+            // Ставим игру на паузу
+            PauseManager.Instance.SetPause(true);
         }
         else
         {
-            // Закрываем инвентарь
             CloseInventory();
+            // Снимаем паузу
+            PauseManager.Instance.SetPause(false);
         }
     }
 
     private void OpenInventory()
     {
-        // Ставим игру на паузу
-        Time.timeScale = 0f;
-
         // Показываем курсор
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -50,11 +61,19 @@ public class InventoryUIController : MonoBehaviour
 
     private void CloseInventory()
     {
-        // Возвращаем нормальное время
-        Time.timeScale = 1f;
-
         // Скрываем курсор
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    // Метод для обработки внешнего события паузы
+    private void HandlePauseChanged(bool isPaused)
+    {
+        _inventoryPanel.SetActive(isPaused);
+        _isOpen = isPaused;
+
+        // Управление курсором
+        Cursor.lockState = isPaused ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = isPaused;
     }
 }

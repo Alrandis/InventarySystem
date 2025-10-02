@@ -9,14 +9,32 @@ public class PlayerLook : MonoBehaviour
 
     private PlayerInput _input;
     private float _pitch;
+    private bool _isPaused;
 
     void Awake()
     {
         _input = GetComponent<PlayerInput>();
     }
 
+    private void OnEnable()
+    {
+        PauseManager.Instance.OnPauseChanged += HandlePauseChanged;
+    }
+
+    private void OnDisable()
+    {
+        PauseManager.Instance.OnPauseChanged -= HandlePauseChanged;
+    }
+
+    private void HandlePauseChanged(bool isPaused)
+    {
+        _isPaused = isPaused;
+    }
+
     void Update()
     {
+        if (_isPaused) return; // блокируем вращение при паузе
+
         // Горизонталь (вращает весь объект игрока)
         transform.Rotate(Vector3.up * _input.LookAxis.x * _sensitivity);
 
