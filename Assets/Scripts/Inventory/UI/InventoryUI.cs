@@ -1,63 +1,119 @@
-using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
-// Управление UI-инвентаря
 public class InventoryUI : MonoBehaviour
 {
-    [SerializeField] private Inventory _inventory;       // Ссылка на скрипт Inventory
-    [SerializeField] private ItemSlotUI[] _itemSlots;    // Все слоты в сетке
-    [SerializeField] private Button _sortByNameButton;   // Кнопка сортировки по имени
-    [SerializeField] private Button _sortByTypeButton;   // Кнопка сортировки по типу
+    [SerializeField] private Inventory _inventory;
+    [SerializeField] private ItemSlotUI[] _itemSlots;
+    [SerializeField] private Button _sortByNameButton;
+    [SerializeField] private Button _sortByTypeButton;
+
+    private ItemSlotUI _draggedFromSlot;
+
+    private void Awake()
+    {
+        // инициализируем индексы слотов (слоты сделаны вручную в сцене)
+        for (int i = 0; i < _itemSlots.Length; i++)
+        {
+            _itemSlots[i].Init(i);
+        }
+    }
 
     private void OnEnable()
     {
-        // Подписываемся на события инвентаря
-        _inventory.OnItemAdded += OnItemChanged;
-        _inventory.OnItemRemoved += OnItemChanged;
-        _inventory.OnInventorySorted += OnInventorySorted;
+        if (_inventory != null)
+        {
+            _inventory.OnItemChanged += Inventory_OnItemChanged;
+            _inventory.OnInventorySorted += Inventory_OnInventorySorted;
+        }
 
-        // Подписываем кнопки сортировки
-        _sortByNameButton.onClick.AddListener(() => _inventory.Sort(InventorySortType.ByName));
-        _sortByTypeButton.onClick.AddListener(() => _inventory.Sort(InventorySortType.ByItemType));
+        if (_sortByNameButton != null) _sortByNameButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByName); });
+        if (_sortByTypeButton != null) _sortByTypeButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByItemType); });
 
         RefreshUI();
     }
 
     private void OnDisable()
     {
-        _inventory.OnItemAdded -= OnItemChanged;
-        _inventory.OnItemRemoved -= OnItemChanged;
-        _inventory.OnInventorySorted -= OnInventorySorted;
+        if (_inventory != null)
+        {
+            _inventory.OnItemChanged -= Inventory_OnItemChanged;
+            _inventory.OnInventorySorted -= Inventory_OnInventorySorted;
+        }
 
-        _sortByNameButton.onClick.RemoveAllListeners();
-        _sortByTypeButton.onClick.RemoveAllListeners();
+        if (_sortByNameButton != null) _sortByNameButton.onClick.RemoveAllListeners();
+        if (_sortByTypeButton != null) _sortByTypeButton.onClick.RemoveAllListeners();
     }
 
-    private void OnItemChanged(IItemInstance item)
+    private void Inventory_OnItemChanged(int index, IItemInstance item)
     {
+        // обновляем только этот слот (если индекс валидный)
+        if (index >= 0 && index < _itemSlots.Length)
+        {
+            if (item != null) _itemSlots[index].SetItem(item);
+            else _itemSlots[index].Clear();
+        }
+    }
+
+    private void Inventory_OnInventorySorted(InventorySortType sortType)
+    {
+        // при сортировке проще перерисовать всё
         RefreshUI();
     }
 
-    private void OnInventorySorted(InventorySortType sortType)
-    {
-        RefreshUI();
-    }
-
-    // Обновляем все слоты
     private void RefreshUI()
     {
-        for (int i = 0; i < _itemSlots.Length; i++)
+        int slots = _itemSlots.Length;
+        for (int i = 0; i < slots; i++)
         {
-            if (i < _inventory.Items.Count)
-            {
-                _itemSlots[i].SetItem(_inventory.Items[i]);
-            }
-            else
-            {
-                _itemSlots[i].Clear();
-            }
+            IItemInstance item = null;
+            if (_inventory != null && i < _inventory.Size)
+                item = _inventory.Items[i];
+
+            if (item != null) _itemSlots[i].SetItem(item);
+            else _itemSlots[i].Clear();
         }
+    }
+
+    // Drag
+    public void StartDrag(ItemSlotUI slot)
+    {
+        _draggedFromSlot = slot;
+    }
+
+    // SwapSlots: логика объединения стека / swap / move
+    public void SwapSlots(ItemSlotUI fromSlot, ItemSlotUI toSlot)
+    {
+        if (fromSlot == null || toSlot == null) return;
+        if (fromSlot == toSlot) return;
+
+        var fromItem = fromSlot.GetItem();
+        var toItem = toSlot.GetItem();
+
+        if (fromItem == null) return;
+
+        int fromIndex = fromSlot.Index;
+        int toIndex = toSlot.Index;
+
+        // 1) Если стеки и можно объединить:
+        if (fromItem is IStackable fs && toItem is IStackable ts && fs.CanStackWith(ts))
+        {
+            ts.AddToStack(fs.CurrentStack);      // добавляем в существующий стак
+            // удаляем исходный стак (он полностью переместился в целевой стак)
+            _inventory.RemoveItemAt(fromIndex);
+            return;
+        }
+
+        // 2) Если целевой пустой - move
+        if (toItem == null)
+        {
+            _inventory.MoveItem(fromIndex, toIndex);
+            return;
+        }
+
+        // 3) Обычный swap
+        _inventory.SwapItems(fromIndex, toIndex);
     }
 }

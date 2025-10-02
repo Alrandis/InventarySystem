@@ -1,22 +1,37 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.EventSystems;
 
-// Каждая ячейка инвентаря
-public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
+public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private Image _itemIcon;         // Слот для иконки
-    [SerializeField] private TextMeshProUGUI _stackText; // Текст для количества в стеке
-    [SerializeField] private GameObject _selectionHighlight; // Подсветка выбранного предмета
+    [SerializeField] private Image _itemIcon;
+    [SerializeField] private TextMeshProUGUI _stackText;
+    [SerializeField] private GameObject _selectionHighlight;
 
-    private IItemInstance _currentItem;               // Предмет, который хранится в этом слоте
-    private bool _isSelected = false;
+    private IItemInstance _currentItem;
+    private bool _isSelected;
+
+    // Drag visual
+    public Image DraggedIcon { get; private set; }
+    private Canvas _canvas;
+
+    public int Index { get; private set; }
+
+    public void Init(int index)
+    {
+        Index = index;
+    }
+
+    private void Awake()
+    {
+        _canvas = GetComponentInParent<Canvas>();
+    }
 
     public void SetItem(IItemInstance item)
     {
         _currentItem = item;
-
         if (_currentItem != null)
         {
             _itemIcon.sprite = _currentItem.ItemData.Icon;
@@ -48,33 +63,79 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
         Deselect();
     }
 
+    public IItemInstance GetItem() => _currentItem;
+
     public void Select()
     {
         _isSelected = true;
-        _selectionHighlight.SetActive(true);
+        if (_selectionHighlight) _selectionHighlight.SetActive(true);
     }
 
     public void Deselect()
     {
         _isSelected = false;
-        _selectionHighlight.SetActive(false);
+        if (_selectionHighlight) _selectionHighlight.SetActive(false);
     }
 
-    // Клик по слоту
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_currentItem == null) return;
 
-        // Используем предмет, если он реализует IUsableItem
         if (_currentItem is IUsableItem usable)
         {
             usable.Use();
         }
 
-        // Можно здесь добавить логику выделения
-        if (!_isSelected)
-            Select();
-        else
-            Deselect();
+        if (!_isSelected) Select();
+        else Deselect();
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (_currentItem == null) return;
+
+        // создаём визуал и передаём в InventoryUI
+        DraggedIcon = new GameObject("DraggedIcon").AddComponent<Image>();
+        DraggedIcon.raycastTarget = false;
+        DraggedIcon.sprite = _itemIcon.sprite;
+        DraggedIcon.transform.SetParent(_canvas.transform, false);
+        DraggedIcon.transform.SetAsLastSibling();
+
+        // масштаб/размер
+        DraggedIcon.rectTransform.sizeDelta = _itemIcon.rectTransform.sizeDelta;
+
+        var ui = FindObjectOfType<InventoryUI>();
+        if (ui != null) ui.StartDrag(this);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (DraggedIcon != null)
+            DraggedIcon.transform.position = eventData.position;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (DraggedIcon != null)
+            Destroy(DraggedIcon.gameObject);
+
+        // raycast на UI под курсором
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        ItemSlotUI targetSlot = null;
+        foreach (var r in results)
+        {
+            targetSlot = r.gameObject.GetComponent<ItemSlotUI>();
+            if (targetSlot != null) break;
+        }
+
+        if (targetSlot != null)
+        {
+            var ui = FindObjectOfType<InventoryUI>();
+            if (ui != null) ui.SwapSlots(this, targetSlot);
+        }
+
+        DraggedIcon = null;
     }
 }
