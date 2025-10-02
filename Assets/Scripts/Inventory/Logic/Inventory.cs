@@ -18,9 +18,6 @@ public class Inventory : MonoBehaviour
 
     [SerializeField] private InventoryUI _inventoryUI;
 
-    // Текущий режим сортировки
-    private InventorySortType _currentSort = InventorySortType.None;
-
     // События:
     // (index, item) — item может быть null (означает пустой слот)
     public event Action<int, IItemInstance> OnItemChanged;
@@ -248,8 +245,6 @@ public class Inventory : MonoBehaviour
     // Сортировка: берем все не-null элементы, сортируем и кладём сначала, затем null'ы
     public void Sort(InventorySortType sortType)
     {
-        _currentSort = sortType;
-
         // собираем существующие предметы
         var present = _items.Where(x => x != null).ToList();
 

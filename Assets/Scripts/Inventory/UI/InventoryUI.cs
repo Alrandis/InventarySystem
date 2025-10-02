@@ -10,7 +10,6 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Button _sortByNameButton;
     [SerializeField] private Button _sortByTypeButton;
 
-    private ItemSlotUI _draggedFromSlot;
     private ItemSlotUI _selectedSlot;
 
     private void Awake()
@@ -76,6 +75,14 @@ public class InventoryUI : MonoBehaviour
 
     public void SelectSlot(ItemSlotUI slot)
     {
+        if (_selectedSlot == slot)
+        {
+            // если кликнули по уже выделенному — снимаем выделение
+            _selectedSlot.SetSelected(false);
+            _selectedSlot = null;
+            return;
+        }
+
         if (_selectedSlot != null)
             _selectedSlot.SetSelected(false);
 
@@ -112,12 +119,6 @@ public class InventoryUI : MonoBehaviour
             else 
                 _itemSlots[i].Clear();
         }
-    }
-
-    // Drag
-    public void StartDrag(ItemSlotUI slot)
-    {
-        _draggedFromSlot = slot;
     }
 
     // SwapSlots: логика объединения стека / swap / move

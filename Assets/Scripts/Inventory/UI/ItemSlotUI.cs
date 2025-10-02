@@ -125,8 +125,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         // לאסרעאב/נאחלונ
         DraggedIcon.rectTransform.sizeDelta = _itemIcon.rectTransform.sizeDelta;
-
-        if (_inventoryUI != null) _inventoryUI.StartDrag(this);
     }
 
     public void OnDrag(PointerEventData eventData)
