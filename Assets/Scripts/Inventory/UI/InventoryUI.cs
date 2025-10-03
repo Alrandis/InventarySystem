@@ -11,6 +11,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Button _sortByNameButton;
     [SerializeField] private Button _sortByTypeButton;
     [SerializeField] private ItemTooltip _tooltip;
+    [SerializeField] private ItemTooltipPositioner _tooltipPositioner;
 
     private ItemSlotUI _selectedSlot;
 
@@ -19,7 +20,7 @@ public class InventoryUI : MonoBehaviour
         // инициализируем индексы слотов (слоты сделаны вручную в сцене)
         for (int i = 0; i < _itemSlots.Length; i++)
         {
-            _itemSlots[i].Init(i, this, _inventory, _tooltip);
+            _itemSlots[i].Init(i, this, _inventory, _tooltip, _tooltipPositioner);
             _itemSlots[i].OnDropClicked += OnDropButtonPressed;
         }
     }

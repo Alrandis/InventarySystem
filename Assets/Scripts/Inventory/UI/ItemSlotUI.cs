@@ -13,11 +13,13 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     [SerializeField] private GameObject _selectionHighlight;
     [SerializeField] private Button _dropButton;
 
+
     public event Action OnDropClicked; // событие наружу
     public event Action<ItemSlotUI> OnClicked;
 
     private IItemInstance _currentItem;
     private ItemTooltip _tooltip;
+    private ItemTooltipPositioner _tooltipPositioner;
     private bool _isSelected;
     private InventoryUI _inventoryUI;
     private Inventory _inventory;
@@ -37,12 +39,13 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         _dropButton.gameObject.SetActive(false); // скрыта по умолчанию
     }
 
-    public void Init(int index, InventoryUI inventoryUI, Inventory inventory, ItemTooltip tooltip)
+    public void Init(int index, InventoryUI inventoryUI, Inventory inventory, ItemTooltip tooltip, ItemTooltipPositioner tooltipPositioner)
     {
         Index = index;
         _inventoryUI = inventoryUI;
         _inventory = inventory;
         _tooltip = tooltip;
+        _tooltipPositioner = tooltipPositioner;
     }
 
     public void SetItem(IItemInstance item)
@@ -91,6 +94,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         if (_currentItem != null)
         {
             _tooltip.Show(_currentItem.ItemData.Name, _currentItem.ItemData.Description, Input.mousePosition);
+            _tooltipPositioner.UpdatePosition(Input.mousePosition);
         }
     }
 

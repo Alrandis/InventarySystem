@@ -1,9 +1,11 @@
 using TMPro;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class ItemTooltip : MonoBehaviour
 {
     [SerializeField] private GameObject _panel;
+    public GameObject Panel => _panel;
     [SerializeField] private TextMeshProUGUI _title;
     [SerializeField] private TextMeshProUGUI _description;
 
@@ -18,8 +20,6 @@ public class ItemTooltip : MonoBehaviour
         _title.text = itemTitle;
         _description.text = itemDescription;
 
-        // ставим у мышки (или чуть смещаем)
-        _panel.transform.position = position + new Vector3(10f, -10f, 0f);
     }
 
     public void Hide()
