@@ -4,8 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
-public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image _itemIcon;
     [SerializeField] private TextMeshProUGUI _stackText;
@@ -16,6 +17,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     public event Action<ItemSlotUI> OnClicked;
 
     private IItemInstance _currentItem;
+    private ItemTooltip _tooltip;
     private bool _isSelected;
     private InventoryUI _inventoryUI;
     private Inventory _inventory;
@@ -35,11 +37,12 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         _dropButton.gameObject.SetActive(false); // скрыта по умолчанию
     }
 
-    public void Init(int index, InventoryUI inventoryUI, Inventory inventory)
+    public void Init(int index, InventoryUI inventoryUI, Inventory inventory, ItemTooltip tooltip)
     {
         Index = index;
         _inventoryUI = inventoryUI;
         _inventory = inventory;
+        _tooltip = tooltip;
     }
 
     public void SetItem(IItemInstance item)
@@ -82,6 +85,19 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     }
 
     public IItemInstance GetItem() => _currentItem;
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (_currentItem != null)
+        {
+            _tooltip.Show(_currentItem.ItemData.Name, _currentItem.ItemData.Description, Input.mousePosition);
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _tooltip.Hide();
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {

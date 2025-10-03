@@ -21,6 +21,7 @@ public class InventoryUIController : MonoBehaviour
 
     void Start()
     {
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
