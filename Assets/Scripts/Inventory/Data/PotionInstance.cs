@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -11,6 +12,17 @@ public class PotionInstance : IItemInstance, IStackable, IUsableItem
     {
         _data = data;
         _currentStack = Mathf.Clamp(amount, 1, data.MaxStack);
+    }
+
+    public Dictionary<string, string> GetStats()
+    {
+        var stats = new Dictionary<string, string>
+        {
+            { "Стек", CurrentStack.ToString() },
+            { "Макс. Стек", MaxStack.ToString() },
+            { "Восстановление HP", Data.HealAmount.ToString() }
+        };
+        return stats;
     }
 
     // Реализация IUsableItem

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InventoryUIController : MonoBehaviour
+public class InventoryControllerUI : MonoBehaviour
 {
     [SerializeField] private GameObject _inventoryPanel;
     [SerializeField] private GameObject _pickupHintPanel;
