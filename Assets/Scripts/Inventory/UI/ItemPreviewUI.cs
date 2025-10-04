@@ -56,10 +56,14 @@ public class ItemPreviewUI : MonoBehaviour
         }
     }
 
-    private void Clear()
+    public void Clear()
     {
         if (_currentPreview != null)
             Destroy(_currentPreview);
+
+        _titleText.text = "";
+        _typeText.text = "";
+        _descriptionText.text = "";
 
         foreach (Transform child in _statsContainer)
             Destroy(child.gameObject);

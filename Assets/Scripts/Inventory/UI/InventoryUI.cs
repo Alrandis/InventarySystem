@@ -72,6 +72,7 @@ public class InventoryUI : MonoBehaviour
             {
                 _selectedSlot.SetSelected(false);
                 _selectedSlot = null;
+                _itemPreviewUI.Clear();
             }
         }
     }
@@ -83,6 +84,7 @@ public class InventoryUI : MonoBehaviour
             // если кликнули по уже выделенному Ч снимаем выделение
             _selectedSlot.SetSelected(false);
             _selectedSlot = null;
+            _itemPreviewUI.Clear();
             return;
         }
 
