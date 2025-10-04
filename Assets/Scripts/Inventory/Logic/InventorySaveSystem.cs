@@ -113,15 +113,12 @@ public class InventorySaveSystem : MonoBehaviour
             if (itemData.IsStackable)
             {
                 // Используем корректный тип стека
-                instance = itemData.CreateInstance(saved.StackCount);
-                Debug.Log($"Колличесво в стеке {saved.StackCount}");
-                
+                instance = itemData.CreateInstance(saved.StackCount);                
             }
             else
             {
                 // Не-стекуемый предмет
                 instance = itemData.CreateInstance();
-                Debug.Log($"Не-стекуемый предмет");
             }
 
             //// Удаляем старый предмет из слота

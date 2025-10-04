@@ -4,7 +4,7 @@ using static UnityEditor.Progress;
 
 public class ItemPreviewUI : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI _nameText;
+    [SerializeField] private TextMeshProUGUI _titleText;
     [SerializeField] private TextMeshProUGUI _typeText;
     [SerializeField] private TextMeshProUGUI _descriptionText;
     [SerializeField] private Transform _statsContainer;
@@ -12,21 +12,16 @@ public class ItemPreviewUI : MonoBehaviour
 
     [SerializeField] private Transform _previewRoot;
     [SerializeField] private float _rotationSpeed = 50f;
+    [SerializeField] private ModelRotator _modelRotator;
 
-    private GameObject _currentPreview;
-
-    private void Update()
-    {
-        if (_currentPreview != null)
-            _currentPreview.transform.Rotate(Vector3.up, _rotationSpeed * Time.deltaTime, Space.World);
-    }
+    [SerializeField] private GameObject _currentPreview;
 
     public void Show(IItemInstance item)
     {
         Clear();
 
         // Основная текстовая информация
-        _nameText.text = item.ItemData.Name;
+        _titleText.text = item.ItemData.Name;
         _typeText.text = $"Тип предмета {GetItemType(item.ItemData.ItemType)}";
         _descriptionText.text = item.ItemData.Description;
 
@@ -34,9 +29,12 @@ public class ItemPreviewUI : MonoBehaviour
         if (item.ItemData.Prefab != null)
         {
             _currentPreview = Instantiate(item.ItemData.Prefab, _previewRoot);
+            Debug.Log($"Модель предмета создана {_currentPreview}");
+            _currentPreview.layer = LayerMask.NameToLayer("ItemPreview");
             _currentPreview.transform.localPosition = Vector3.zero;
             _currentPreview.transform.localRotation = Quaternion.identity;
             _currentPreview.transform.localScale = Vector3.one;
+            _modelRotator.TransformPrefab = _currentPreview.transform;
         }
 
         // Заполняем характеристики
