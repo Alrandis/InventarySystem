@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 287a66310530f0345b9c10d0f5d8e10a, type: 3}
   m_Name: HealthPotion
   m_EditorClassIdentifier: 
+  Id: 2
   Name: "\u0417\u0435\u043B\u044C\u0435 \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F"
   Description: "\u041F\u0440\u043E\u0441\u0442\u043E\u0435 \u0437\u0435\u043B\u044C\u0435
     \u0440\u0435\u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438. \u0423\u0441\u043A\u043E\u0440\u044F\u0435\u0442
@@ -21,5 +22,6 @@ MonoBehaviour:
   Icon: {fileID: 21300000, guid: 31497127d4ee1424ebd934b1f64c7812, type: 3}
   Prefab: {fileID: 8712261398964681198, guid: 48b6ba4e08e5f974e98891677a1defe3, type: 3}
   ItemType: 2
+  IsStackable: 1
   HealAmount: 50
   MaxStack: 10

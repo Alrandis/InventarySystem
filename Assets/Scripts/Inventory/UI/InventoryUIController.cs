@@ -4,6 +4,7 @@ public class InventoryUIController : MonoBehaviour
 {
     [SerializeField] private GameObject _inventoryPanel;
     [SerializeField] private GameObject _pickupHintPanel;
+    [SerializeField] private GameObject _toolTipPanel;
 
     private bool _isOpen = false;
 
@@ -52,6 +53,7 @@ public class InventoryUIController : MonoBehaviour
             CloseInventory();
             // Снимаем паузу
             PauseManager.Instance.SetPause(false);
+            _toolTipPanel.SetActive(false);
         }
     }
 
