@@ -6,6 +6,9 @@ public class ArmorItem : ItemData
     public int DefaulDefense;
     public ArmorType ArmorType;
 
+    public int DefenseMin;
+    public int DefenseMax;
+
     public override IItemInstance CreateInstance(int count = 1)
     {
         return new ArmorInstance(this, DefaulDefense);

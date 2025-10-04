@@ -41,8 +41,18 @@ public class PickupItem : MonoBehaviour
         return _itemData switch
         {
             PotionItem potion => new PotionInstance(potion, _stackAmount),
-            WeaponItem weapon => new WeaponInstance(weapon, weapon.DefaultDamage, weapon.DefaultAttackSpeed),
-            ArmorItem armor => new ArmorInstance(armor, armor.DefaulDefense),
+
+            WeaponItem weapon => new WeaponInstance(
+                weapon,
+                Random.Range(weapon.DamageMin, weapon.DamageMax),
+                weapon.DefaultAttackSpeed
+            ),
+
+            ArmorItem armor => new ArmorInstance(
+                armor,
+                Random.Range(armor.DefenseMin, armor.DefenseMax)
+            ),
+
             _ => null
         };
     }

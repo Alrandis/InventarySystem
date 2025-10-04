@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -17,6 +18,9 @@ public class InventorySaveSystem : MonoBehaviour
     {
         public string Id;
         public int StackCount;
+        // variable = -1 означает "нет кастомного значения"
+        public int CustomDamage = -1; // для оружия
+        public int CustomDefense = -1; // для брони
     }
 
     [Serializable]
@@ -28,6 +32,14 @@ public class InventorySaveSystem : MonoBehaviour
     private void Awake()
     {
         _savePath = Path.Combine(Application.persistentDataPath, "inventory.json");
+    }
+
+    [System.Serializable]
+    public class ItemInstanceData
+    {
+        public string ItemID; // ID базового ScriptableObject (например GUID)
+        public int InstanceID; // уникальный ID экземпляра
+        public Dictionary<string, float> CustomValues = new();
     }
 
     /// <summary>
@@ -43,7 +55,6 @@ public class InventorySaveSystem : MonoBehaviour
 
         var data = new InventoryData();
         data.Items = new SavedItem[_inventory.Size];
-
         for (int i = 0; i < _inventory.Size; i++)
         {
             var item = _inventory.Items[i];
@@ -57,12 +68,24 @@ public class InventorySaveSystem : MonoBehaviour
             if (item is IStackable stackable)
                 count = stackable.CurrentStack;
 
-            data.Items[i] = new SavedItem
+            var saved = new SavedItem
             {
                 Id = item.ItemData.Id,
-                StackCount = count
+                StackCount = count,
+                CustomDamage = -1,
+                CustomDefense = -1
             };
+
+            // Сохраняем случайные значения, если они есть
+            if (item is WeaponInstance weaponInstance)
+                saved.CustomDamage = weaponInstance.Damage;
+
+            if (item is ArmorInstance armorInstance)
+                saved.CustomDefense = armorInstance.Defense;
+
+            data.Items[i] = saved;
         }
+
 
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(_savePath, json);
@@ -76,7 +99,7 @@ public class InventorySaveSystem : MonoBehaviour
     {
         if (!File.Exists(_savePath))
         {
-            Debug.Log("[InventorySaveSystem] No save file found — creating empty inventory.");
+            Debug.Log("[InventorySaveSystem] No save file found - creating empty inventory.");
             return;
         }
 
@@ -109,23 +132,24 @@ public class InventorySaveSystem : MonoBehaviour
 
             IItemInstance instance;
 
-            // Проверяем, стекуемый ли предмет
-            if (itemData.IsStackable)
+            if (itemData is PotionItem potion)
             {
-                // Используем корректный тип стека
-                instance = itemData.CreateInstance(saved.StackCount);                
+                instance = new PotionInstance(potion, saved.StackCount);
+            }
+            else if (itemData is WeaponItem weapon)
+            {
+                int damage = (saved.CustomDamage != 1) ? saved.CustomDamage : weapon.DefaultDamage;
+                instance = new WeaponInstance(weapon, damage, weapon.DefaultAttackSpeed);
+            }
+            else if (itemData is ArmorItem armor)
+            {
+                int defense = (saved.CustomDefense != -1) ? saved.CustomDefense : armor.DefaulDefense;
+                instance = new ArmorInstance(armor, defense);
             }
             else
             {
-                // Не-стекуемый предмет
                 instance = itemData.CreateInstance();
             }
-
-            //// Удаляем старый предмет из слота
-            //_inventory.RemoveItemAt(i, int.MaxValue);
-
-            //// Добавляем предмет напрямую в слот
-            //_inventory.AddItem(instance);
 
             _inventory.SetItemAt(i, instance);
         }

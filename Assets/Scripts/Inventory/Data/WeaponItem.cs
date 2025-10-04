@@ -7,6 +7,10 @@ public class WeaponItem : ItemData
     public float DefaultAttackSpeed;
     public bool IsTwoHanded;
 
+    public int DamageMin;
+    public int DamageMax;
+
+
     public override IItemInstance CreateInstance(int count = 1)
     {
         return new WeaponInstance(this, DefaultDamage, DefaultAttackSpeed);
