@@ -5,6 +5,11 @@ public class ArmorItem : ItemData
 {
     public int DefaulDefense;
     public ArmorType ArmorType;
+
+    public override IItemInstance CreateInstance(int count = 1)
+    {
+        return new ArmorInstance(this, DefaulDefense);
+    }
 }
 
 public enum ArmorType

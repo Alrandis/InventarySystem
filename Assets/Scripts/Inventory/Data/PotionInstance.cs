@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[System.Serializable]
 public class PotionInstance : IItemInstance, IStackable, IUsableItem
 {
     private readonly PotionItem _data;

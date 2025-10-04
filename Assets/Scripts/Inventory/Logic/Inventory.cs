@@ -22,6 +22,7 @@ public class Inventory : MonoBehaviour
     // (index, item) — item может быть null (означает пустой слот)
     public event Action<int, IItemInstance> OnItemChanged;
     public event Action<InventorySortType> OnInventorySorted;
+    public event Action OnInventoryLayoutChanged;
 
     public int Size => _size;
     public IReadOnlyList<IItemInstance> Items => _items;
@@ -186,6 +187,9 @@ public class Inventory : MonoBehaviour
 
         OnItemChanged?.Invoke(indexA, _items[indexA]);
         OnItemChanged?.Invoke(indexB, _items[indexB]);
+
+        // Добавляем вызов события
+        OnInventoryLayoutChanged?.Invoke();
     }
 
     // Переместить из fromIndex в toIndex (если toIndex пустой — просто move, иначе swap)
@@ -205,6 +209,8 @@ public class Inventory : MonoBehaviour
         {
             SwapItems(fromIndex, toIndex);
         }
+        // Добавляем вызов события
+        OnInventoryLayoutChanged?.Invoke();
     }
 
     // Новый метод объединения стеков
@@ -234,8 +240,19 @@ public class Inventory : MonoBehaviour
         // Обновляем UI
         OnItemChanged?.Invoke(fromIndex, _items[fromIndex]);
         OnItemChanged?.Invoke(toIndex, _items[toIndex]);
+
+        // Добавляем вызов события
+        OnInventoryLayoutChanged?.Invoke();
     }
 
+    // Прямое присвоение предмета в слот (например, при загрузке)
+    public void SetItemAt(int index, IItemInstance item)
+    {
+        if (index < 0 || index >= _items.Length) return;
+
+        _items[index] = item;
+        OnItemChanged?.Invoke(index, _items[index]);
+    }
 
     // Сортировка: берем все не-null элементы, сортируем и кладём сначала, затем null'ы
     public void Sort(InventorySortType sortType)

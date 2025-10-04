@@ -25,7 +25,6 @@ public class ItemTooltipPositioner : MonoBehaviour
 
         // Применяем смещение
         Vector2 pos = screenPosition + offset;
-        Debug.Log(pos);
         // Получаем границы Canvas
         RectTransform canvasRect = canvas.GetComponent<RectTransform>();
         Vector2 canvasSize = canvasRect.sizeDelta;
@@ -37,12 +36,10 @@ public class ItemTooltipPositioner : MonoBehaviour
         if (pos.x + tooltipSize.x > canvasSize.x)
         {
             pos.x = canvasSize.x - tooltipSize.x;
-            Debug.Log($"позиция по х {pos}");
         }
         if (pos.y - tooltipSize.y < 0)
         {
             pos.y = tooltipSize.y;
-            Debug.Log($"позиция по y {pos}");
         }
 
         // Устанавливаем позицию
