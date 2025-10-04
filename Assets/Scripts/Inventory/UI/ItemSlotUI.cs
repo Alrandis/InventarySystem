@@ -30,6 +30,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
     private Canvas _canvas;
 
     public int Index { get; private set; }
+    public IItemInstance CurrentItem => _currentItem;
 
     private void Awake()
     {

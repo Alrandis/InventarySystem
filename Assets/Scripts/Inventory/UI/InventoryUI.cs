@@ -12,6 +12,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Button _sortByTypeButton;
     [SerializeField] private ItemTooltip _tooltip;
     [SerializeField] private ItemTooltipPositioner _tooltipPositioner;
+    [SerializeField] private ItemPreviewUI _itemPreviewUI;
 
     private ItemSlotUI _selectedSlot;
 
@@ -91,7 +92,11 @@ public class InventoryUI : MonoBehaviour
         _selectedSlot = slot;
 
         if (_selectedSlot != null)
+        {
             _selectedSlot.SetSelected(true);
+            _itemPreviewUI.Show(slot.CurrentItem);
+        }
+            
     }
 
     public void ClearSelectionIfSlot(int index)
