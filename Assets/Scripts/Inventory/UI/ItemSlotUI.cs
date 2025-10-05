@@ -163,6 +163,25 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
+        bool handled = false;
+
+        foreach (var r in results)
+        {
+            var equipSlot = r.gameObject.GetComponent<EquipSlotUI>();
+            if (equipSlot != null)
+            {
+                if (equipSlot.CanEquip(_currentItem))
+                {
+                    // Перемещаем предмет в слот экипировки
+                    equipSlot.OnDrop(eventData);
+                    handled = true;
+                    break;
+                }
+            }
+        }
+
+        DraggedIcon = null;
+
         ItemSlotUI targetSlot = null;
         foreach (var r in results)
         {
@@ -177,4 +196,65 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
 
         DraggedIcon = null;
     }
+
+
+    // Убирает предмет из модели Inventory (если есть) и возвращает этот IItemInstance.
+    // Если слот был только UI-only (нет ссылки на Inventory), то снимает визуал и возвращает локальный _currentItem.
+    public IItemInstance ExtractItemFromInventory()
+    {
+        // Если есть модель — работаем с ней (модель — источник правды)
+        if (_inventory != null)
+        {
+            IItemInstance itemInModel = null;
+            if (Index >= 0 && Index < _inventory.Items.Count) // безопасная проверка
+                itemInModel = _inventory.Items[Index];
+
+            if (itemInModel != null)
+            {
+                // Устанавливаем в модели null — это вызовет OnItemChanged и обновит UI через InventoryUI
+                _inventory.SetItemAt(Index, null);
+                return itemInModel;
+            }
+
+            return null;
+        }
+
+        // fallback: чисто UI-слот (без модели)
+        var temp = _currentItem;
+        Clear();
+        return temp;
+    }
+
+    // Помещает newItem в модель в этот слот и возвращает старый предмет (или null).
+    // Используй это, когда нужно "положить" предмет из экипировки в конкретный слот инвентаря.
+    public IItemInstance ReplaceItemInInventory(IItemInstance newItem)
+    {
+        if (_inventory != null)
+        {
+            IItemInstance old = null;
+            if (Index >= 0 && Index < _inventory.Items.Count)
+                old = _inventory.Items[Index];
+
+            _inventory.SetItemAt(Index, newItem); // обновит модель и вызовет OnItemChanged -> обновит UI
+            return old;
+        }
+
+        // fallback: UI-only
+        var oldLocal = _currentItem;
+        SetItem(newItem); // обновляем визуал
+        return oldLocal;
+    }
+
+    // Удобный метод-утилита: проверяет, пуст ли слот в модели
+    public bool IsEmptyInModel()
+    {
+        if (_inventory != null)
+        {
+            if (Index >= 0 && Index < _inventory.Items.Count)
+                return _inventory.Items[Index] == null;
+            return true;
+        }
+        return _currentItem == null;
+    }
+
 }

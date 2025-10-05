@@ -27,4 +27,6 @@ MonoBehaviour:
   IsStackable: 0
   DefaultDamage: 25
   DefaultAttackSpeed: 1
-  IsTwoHanded: 0
+  IsTwoHanded: 1
+  DamageMin: 20
+  DamageMax: 30

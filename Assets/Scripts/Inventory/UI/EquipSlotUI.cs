@@ -1,7 +1,10 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+[System.Serializable]
 public enum EquipSlotType
 {
     Helmet,
@@ -13,19 +16,30 @@ public enum EquipSlotType
     WeaponRight
 }
 
-public class EquipSlotUI : MonoBehaviour, IDropHandler
+public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     // Существующие поля
     [SerializeField] private Image _itemIcon;
+    [SerializeField] private EquipSlotType _slotType;
+
+    private Canvas _canvas;
+    private Image _draggedIcon;
+
     public EquipSlotType SlotType { get; private set; }
     public IItemInstance CurrentItem { get; private set; }
     public bool IsDuplicate { get; private set; } = false;
 
-    public event System.Action OnItemChanged;
+    public event Action OnItemChanged;
+
+    private void Awake()
+    {
+        _canvas = GetComponentInParent<Canvas>();
+    }
+
 
     public void Init(EquipSlotType type)
     {
-        SlotType = type;
+        _slotType = type;
         Clear();
     }
 
@@ -33,7 +47,7 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler
     {
         if (item == null) return false;
 
-        switch (SlotType)
+        switch (_slotType)
         {
             case EquipSlotType.Helmet:
                 return item is ArmorInstance armor && armor.ArmorItem.ArmorType == ArmorType.Helmet;
@@ -43,11 +57,10 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler
                 return item is ArmorInstance bracer && bracer.ArmorItem.ArmorType == ArmorType.Bracer;
             case EquipSlotType.Boots:
                 return item is ArmorInstance boots && boots.ArmorItem.ArmorType == ArmorType.Boots;
-            case EquipSlotType.Shield:
-                return item is ArmorInstance shield && shield.ArmorItem.ArmorType == ArmorType.Shield;
             case EquipSlotType.WeaponLeft:
-            case EquipSlotType.WeaponRight:
                 return item is WeaponInstance;
+            case EquipSlotType.WeaponRight:
+                return item is WeaponInstance || item is ArmorInstance shield && shield.ArmorItem.ArmorType == ArmorType.Shield;
             default:
                 return false;
         }
@@ -79,7 +92,68 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler
         OnItemChanged?.Invoke();
     }
 
-    // Этот метод вызывается, когда предмет перетаскивается на слот
+    // Берём предмет из экипировки
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (CurrentItem == null) return;
+
+        _draggedIcon = new GameObject("DraggedEquipIcon").AddComponent<Image>();
+        _draggedIcon.raycastTarget = false;
+        _draggedIcon.sprite = _itemIcon.sprite;
+        _draggedIcon.transform.SetParent(_canvas.transform, false);
+        _draggedIcon.transform.SetAsLastSibling();
+        _draggedIcon.rectTransform.sizeDelta = _itemIcon.rectTransform.sizeDelta;
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (_draggedIcon != null)
+            _draggedIcon.transform.position = eventData.position;
+    }
+
+    // Отпускаем предмет с экипировки (в инвентарь или в пустое место)
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (_draggedIcon != null)
+            Destroy(_draggedIcon.gameObject);
+
+        if (CurrentItem == null)
+            return;
+
+        // ищем куда дропнули
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        ItemSlotUI targetSlot = null;
+        foreach (var r in results)
+        {
+            targetSlot = r.gameObject.GetComponent<ItemSlotUI>();
+            if (targetSlot != null) break;
+        }
+
+        if (targetSlot != null)
+        {
+            // попытка поместить предмет в инвентарь
+            var old = targetSlot.ReplaceItemInInventory(CurrentItem);
+
+            if (old != null)
+            {
+                // если слот был занят, меняем местами
+                Equip(old);
+            }
+            else
+            {
+                // если слот был пуст — снимаем предмет
+                Clear();
+            }
+
+            targetSlot.SetSelected(false);
+        }
+
+        _draggedIcon = null;
+    }
+
+    // DROP: из инвентаря -> экипировка
     public void OnDrop(PointerEventData eventData)
     {
         var dragged = eventData.pointerDrag;
@@ -88,19 +162,25 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler
         var itemSlot = dragged.GetComponent<ItemSlotUI>();
         if (itemSlot == null) return;
 
-        var item = itemSlot.CurrentItem;
+        var item = itemSlot.ExtractItemFromInventory();
+        if (item == null) return;
 
-        if (!CanEquip(item)) return;
-
-        // Если на этом слоте уже что-то есть, возвращаем в инвентарь
-        if (CurrentItem != null)
+        if (!CanEquip(item))
         {
-            itemSlot.SetItem(CurrentItem);
+            // возвращаем обратно, если не подходит
+            itemSlot.ReplaceItemInInventory(item);
+            return;
         }
 
-        // Ставим предмет в слот экипировки
+        var prev = CurrentItem;
         Equip(item);
-        itemSlot.Clear(); // очищаем оригинальный слот
+        itemSlot.SetSelected(false);
+
+        // если на экипировке уже был предмет — возвращаем его в инвентарь
+        if (prev != null)
+        {
+            itemSlot.ReplaceItemInInventory(prev);
+        }
     }
 }
 
