@@ -138,7 +138,7 @@ public class InventorySaveSystem : MonoBehaviour
             }
             else if (itemData is WeaponItem weapon)
             {
-                int damage = (saved.CustomDamage != 1) ? saved.CustomDamage : weapon.DefaultDamage;
+                int damage = (saved.CustomDamage != -1) ? saved.CustomDamage : weapon.DefaultDamage;
                 instance = new WeaponInstance(weapon, damage, weapon.DefaultAttackSpeed);
             }
             else if (itemData is ArmorItem armor)

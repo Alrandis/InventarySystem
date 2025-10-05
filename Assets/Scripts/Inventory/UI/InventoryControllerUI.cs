@@ -71,6 +71,7 @@ public class InventoryControllerUI : MonoBehaviour
         Cursor.visible = false;
     }
 
+
     // Метод для обработки внешнего события паузы
     private void HandlePauseChanged(bool isPaused)
     {
