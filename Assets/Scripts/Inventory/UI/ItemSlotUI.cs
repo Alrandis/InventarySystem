@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static UnityEditor.Progress;
 
-public class ItemSlotUI : SlotUI, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
+public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
    
     [SerializeField] private TextMeshProUGUI _stackText;
@@ -119,32 +119,10 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IBeginDragHandler, IDrag
         }
     }
 
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (_currentItem == null) return;
-
-        // создаём визуал и передаём в InventoryUI
-        DraggedIcon = new GameObject("DraggedIcon").AddComponent<Image>();
-        DraggedIcon.raycastTarget = false;
-        DraggedIcon.sprite = _itemIcon.sprite;
-        DraggedIcon.transform.SetParent(_canvas.transform, false);
-        DraggedIcon.transform.SetAsLastSibling();
-
-        // масштаб/размер
-        DraggedIcon.rectTransform.sizeDelta = _itemIcon.rectTransform.sizeDelta;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (DraggedIcon != null)
-            DraggedIcon.transform.position = eventData.position;
-    }
-
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (DraggedIcon != null)
-            Destroy(DraggedIcon.gameObject);
+        if (_draggedIcon != null)
+            Destroy(_draggedIcon.gameObject);
 
         // raycast на UI под курсором
         var results = new List<RaycastResult>();

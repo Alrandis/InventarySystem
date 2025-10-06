@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 [System.Serializable]
 public enum EquipSlotType
@@ -16,14 +17,15 @@ public enum EquipSlotType
     WeaponRight
 }
 
-public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragHandler
 {
     // —уществующие пол€
     [SerializeField] private EquipSlotType _slotType;
 
-    private Image _draggedIcon;
-
-    public EquipSlotType SlotType { get; private set; }
+    private EquipManager _equipManager;
+    private bool _isPlaceholder = false;
+    public bool IsPlaceholder => _isPlaceholder;
+    public EquipSlotType SlotType => _slotType;
     public bool IsDuplicate { get; private set; } = false;
 
     public event Action OnItemChanged;
@@ -34,10 +36,9 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDra
         base.Awake();
     }
 
-    public void Init(EquipSlotType type)
+    public void Init(EquipManager equipManager)
     {
-        _slotType = type;
-        Clear();
+        _equipManager = equipManager;
     }
 
     public bool CanEquip(IItemInstance item)
@@ -63,14 +64,22 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDra
         }
     }
 
-    public void Equip(IItemInstance item, bool duplicate = false)
+    public void Equip(IItemInstance item, bool duplicate = false, bool placeholder = false)
     {
         _currentItem = item;
         IsDuplicate = duplicate;
+        _isPlaceholder = placeholder;
 
         if (_itemIcon != null)
         {
-            _itemIcon.sprite = item?.ItemData.Icon;
+            if (placeholder && item != null)
+            {
+                _itemIcon.sprite = item.ItemData.Icon; // можем сделать особую иконку, если хочешь
+            }
+            else
+            {
+                _itemIcon.sprite = item?.ItemData.Icon;
+            }
             _itemIcon.enabled = item != null;
         }
 
@@ -81,6 +90,7 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDra
     {
         base.Clear();
         IsDuplicate = false;
+        _isPlaceholder = false;
         OnItemChanged?.Invoke();
     }
     public override void SetSelected(bool selected)
@@ -101,25 +111,6 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDra
             }
         }
 
-    }
-
-    // ЅерЄм предмет из экипировки
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (_currentItem == null) return;
-
-        _draggedIcon = new GameObject("DraggedEquipIcon").AddComponent<Image>();
-        _draggedIcon.raycastTarget = false;
-        _draggedIcon.sprite = _itemIcon.sprite;
-        _draggedIcon.transform.SetParent(_canvas.transform, false);
-        _draggedIcon.transform.SetAsLastSibling();
-        _draggedIcon.rectTransform.sizeDelta = _itemIcon.rectTransform.sizeDelta;
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (_draggedIcon != null)
-            _draggedIcon.transform.position = eventData.position;
     }
 
     // ќтпускаем предмет с экипировки (в инвентарь или в пустое место)
@@ -151,11 +142,13 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDra
             {
                 // если слот был зан€т, мен€ем местами
                 Equip(old);
+                _equipManager.EquipItem(old);
             }
             else
             {
                 // если слот был пуст Ч снимаем предмет
                 Clear();
+                _equipManager.UnequipItem(SlotType);
             }
 
             targetSlot.SetSelected(false);
@@ -178,20 +171,19 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDra
 
         if (!CanEquip(item))
         {
-            // возвращаем обратно, если не подходит
             itemSlot.ReplaceItemInInventory(item);
             return;
         }
 
-        var prev = _currentItem;
-        Equip(item);
-        itemSlot.SetSelected(false);
+        bool equipped = _equipManager.EquipItem(item);
 
-        // если на экипировке уже был предмет Ч возвращаем его в инвентарь
-        if (prev != null)
+        if (!equipped)
         {
-            itemSlot.ReplaceItemInInventory(prev);
+            itemSlot.ReplaceItemInInventory(item);
+            return;
         }
+
+        itemSlot.SetSelected(false);
     }
 }
 

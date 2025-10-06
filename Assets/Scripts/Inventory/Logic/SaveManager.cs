@@ -6,6 +6,8 @@ public class SaveManager : MonoBehaviour
 
     [SerializeField] private Inventory _inventory;
     [SerializeField] private InventorySaveSystem _inventorySaveSystem;
+    [SerializeField] private EquipSaveSystem _equipSaveSystem;
+
 
     private void Awake()
     {
@@ -23,6 +25,9 @@ public class SaveManager : MonoBehaviour
     {
         if (_inventorySaveSystem != null)
             _inventorySaveSystem.Load(); // Загружаем инвентарь при старте сцены
+        
+        if (_equipSaveSystem != null)
+            _equipSaveSystem.Load();
 
         if (_inventory != null)
         {
@@ -37,11 +42,12 @@ public class SaveManager : MonoBehaviour
     public void SaveAll()
     {
         _inventorySaveSystem?.Save();
-        // В будущем можно добавить другие системы (например, прогресс игрока, настройки и т.д.)
+        _equipSaveSystem?.Save();
     }
 
     public void LoadAll()
     {
         _inventorySaveSystem?.Load();
+        _equipSaveSystem?.Load();
     }
 }
