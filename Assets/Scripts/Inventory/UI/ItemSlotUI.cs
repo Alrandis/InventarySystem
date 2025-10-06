@@ -6,35 +6,24 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static UnityEditor.Progress;
 
-public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
+public class ItemSlotUI : SlotUI, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    [SerializeField] private Image _itemIcon;
+   
     [SerializeField] private TextMeshProUGUI _stackText;
-    [SerializeField] private GameObject _selectionHighlight;
     [SerializeField] private Button _dropButton;
 
+    private ItemTooltip _tooltip;
+    private ItemTooltipPositioner _tooltipPositioner;
+
+    private Inventory _inventory;
 
     public event Action OnDropClicked; // событие наружу
     public event Action<ItemSlotUI> OnClicked;
-
-    private IItemInstance _currentItem;
-    private ItemTooltip _tooltip;
-    private ItemTooltipPositioner _tooltipPositioner;
-    private bool _isSelected;
-    private InventoryUI _inventoryUI;
-    private Inventory _inventory;
-
-
-    // Drag visual
-    public Image DraggedIcon { get; private set; }
-    private Canvas _canvas;
-
     public int Index { get; private set; }
-    public IItemInstance CurrentItem => _currentItem;
 
-    private void Awake()
+    protected override void Awake()
     {
-        _canvas = GetComponentInParent<Canvas>();
+        base.Awake();
 
         _dropButton.onClick.AddListener(() => {OnDropClicked?.Invoke();});
         _dropButton.gameObject.SetActive(false); // скрыта по умолчанию
@@ -72,20 +61,18 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         }
     }
 
-    public void Clear()
+    public override void Clear()
     {
-        _currentItem = null;
-        _itemIcon.sprite = null;
-        _itemIcon.enabled = false;
+        base.Clear();
         _stackText.text = "";
         _stackText.enabled = false;
     }
 
-    public void SetSelected(bool selected)
+    public override void SetSelected(bool selected)
     {
-        _isSelected = selected;
-        if (_selectionHighlight) _selectionHighlight.SetActive(_isSelected);
-        _dropButton?.gameObject.SetActive(_isSelected);
+        base.SetSelected(selected);
+        if(_dropButton != null)
+            _dropButton.gameObject.SetActive(_isSelected);
     }
 
     public IItemInstance GetItem() => _currentItem;
@@ -163,8 +150,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
-        bool handled = false;
-
         foreach (var r in results)
         {
             var equipSlot = r.gameObject.GetComponent<EquipSlotUI>();
@@ -174,7 +159,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler
                 {
                     // Перемещаем предмет в слот экипировки
                     equipSlot.OnDrop(eventData);
-                    handled = true;
                     break;
                 }
             }

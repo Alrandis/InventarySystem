@@ -16,26 +16,23 @@ public enum EquipSlotType
     WeaponRight
 }
 
-public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     // Существующие поля
-    [SerializeField] private Image _itemIcon;
     [SerializeField] private EquipSlotType _slotType;
 
-    private Canvas _canvas;
     private Image _draggedIcon;
 
     public EquipSlotType SlotType { get; private set; }
-    public IItemInstance CurrentItem { get; private set; }
     public bool IsDuplicate { get; private set; } = false;
 
     public event Action OnItemChanged;
 
-    private void Awake()
-    {
-        _canvas = GetComponentInParent<Canvas>();
-    }
 
+    protected override void Awake()
+    {
+        base.Awake();
+    }
 
     public void Init(EquipSlotType type)
     {
@@ -68,7 +65,7 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
 
     public void Equip(IItemInstance item, bool duplicate = false)
     {
-        CurrentItem = item;
+        _currentItem = item;
         IsDuplicate = duplicate;
 
         if (_itemIcon != null)
@@ -80,22 +77,36 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
         OnItemChanged?.Invoke();
     }
 
-    public void Clear()
+    public override void Clear()
     {
-        CurrentItem = null;
+        base.Clear();
         IsDuplicate = false;
-        if (_itemIcon != null)
-        {
-            _itemIcon.sprite = null;
-            _itemIcon.enabled = false;
-        }
         OnItemChanged?.Invoke();
+    }
+    public override void SetSelected(bool selected)
+    {
+        base.SetSelected(selected);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (_currentItem == null) return;
+
+        if (eventData.clickCount == 1)
+        {
+            // Управление выделением только через InventoryUI
+            if (_inventoryUI != null)
+            {
+                _inventoryUI.SelectSlot(this);
+            }
+        }
+
     }
 
     // Берём предмет из экипировки
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (CurrentItem == null) return;
+        if (_currentItem == null) return;
 
         _draggedIcon = new GameObject("DraggedEquipIcon").AddComponent<Image>();
         _draggedIcon.raycastTarget = false;
@@ -117,7 +128,7 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
         if (_draggedIcon != null)
             Destroy(_draggedIcon.gameObject);
 
-        if (CurrentItem == null)
+        if (_currentItem == null)
             return;
 
         // ищем куда дропнули
@@ -134,7 +145,7 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
         if (targetSlot != null)
         {
             // попытка поместить предмет в инвентарь
-            var old = targetSlot.ReplaceItemInInventory(CurrentItem);
+            var old = targetSlot.ReplaceItemInInventory(_currentItem);
 
             if (old != null)
             {
@@ -172,7 +183,7 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
             return;
         }
 
-        var prev = CurrentItem;
+        var prev = _currentItem;
         Equip(item);
         itemSlot.SetSelected(false);
 

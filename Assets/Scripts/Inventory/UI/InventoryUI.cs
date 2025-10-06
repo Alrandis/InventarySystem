@@ -14,7 +14,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private ItemTooltipPositioner _tooltipPositioner;
     [SerializeField] private ItemPreviewUI _itemPreviewUI;
 
-    private ItemSlotUI _selectedSlot;
+    private SlotUI _selectedSlot;
 
     private void Awake()
     {
@@ -77,7 +77,7 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
-    public void SelectSlot(ItemSlotUI slot)
+    public void SelectSlot(SlotUI slot)
     {
         if (_selectedSlot == slot)
         {
@@ -103,10 +103,10 @@ public class InventoryUI : MonoBehaviour
 
     public void ClearSelectionIfSlot(int index)
     {
-        if (_selectedSlot != null && _selectedSlot.Index == index)
+        if (_selectedSlot != null && _selectedSlot is ItemSlotUI itemSlot && itemSlot.Index == index)
         {
-            _selectedSlot.SetSelected(false);
-            _selectedSlot = null;
+            itemSlot.SetSelected(false);
+            itemSlot = null;
         }
     }
 
@@ -171,7 +171,7 @@ public class InventoryUI : MonoBehaviour
     public void OnDropButtonPressed()
     {
         if (_selectedSlot == null) return;
-
-        DroppedItemSpawner.DropItem(_inventory, _selectedSlot.Index);
+        if (_selectedSlot is ItemSlotUI itemSlot)
+            DroppedItemSpawner.DropItem(_inventory, itemSlot.Index);
     }
 }
