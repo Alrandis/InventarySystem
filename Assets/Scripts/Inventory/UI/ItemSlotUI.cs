@@ -4,7 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -18,7 +17,6 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
     private Inventory _inventory;
 
     public event Action OnDropClicked; 
-    public event Action<ItemSlotUI> OnClicked;
     public int Index { get; private set; }
 
     protected override void Awake()
