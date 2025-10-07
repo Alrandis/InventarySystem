@@ -34,37 +34,35 @@
 
 # Гиф. Гифки могут не прогрузится сразу, по этому лучше подождать.
 
+Подбор предметов из игрового мира
 ![PickUp Gif](screenshots/PickUp.gif) 
 
-Подбор предметов из игрового мира
-
+Перетаскивание предметов по инвенторю с заменой, на пустой слот и стеков
 ![DragAndDrop Gif](screenshots/DragAndDrop.gif)
 
-Перетаскивание предметов по инвенторю с заменой, на пустой слот и стеков
-
-![DropItem Gif](screenshots/DropItem.gif)
 Выбрасывание предмета через кнопку
+![DropItem Gif](screenshots/DropItem.gif)
 
-![EquipExample Gif](screenshots/EquipExample.gif)
 Пример экипирования
+![EquipExample Gif](screenshots/EquipExample.gif)
 
-![EquipToHanded Gif](screenshots/EquipToHanded.gif)
 Пример экипирования двуручника с очисткой слотов
+![EquipToHanded Gif](screenshots/EquipToHanded.gif)
 
-![OnEquipment Gif](screenshots/OnEquipment.gif)
 Снятие предметов из экипировки
+![OnEquipment Gif](screenshots/OnEquipment.gif)
 
-![PreviuRotate Gif](screenshots/PreviuRotate.gif)
 Поворот предмета в превью панели
+![PreviuRotate Gif](screenshots/PreviuRotate.gif)
 
-![PotionStack Gif](screenshots/PotionStack.gif)
 Подбирание и использования зелий
+![PotionStack Gif](screenshots/PotionStack.gif)
 
-![RoomPickUp Gif](screenshots/RoomPickUp.gif)
 Подбирание предметов в комнате
+![RoomPickUp Gif](screenshots/RoomPickUp.gif)
 
-![UsePotion Gif](screenshots/UsePotion.gif)
 Использование зелий
+![UsePotion Gif](screenshots/UsePotion.gif)
 
-![ScriptDemo Gif](screenshots/ScriptDemo.gif)
 Структура скриптов 
+![ScriptDemo Gif](screenshots/ScriptDemo.gif)
