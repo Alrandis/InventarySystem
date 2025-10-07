@@ -18,7 +18,6 @@ public class InventoryUI : MonoBehaviour
 
     private void Awake()
     {
-        // инициализируем индексы слотов (слоты сделаны вручную в сцене)
         for (int i = 0; i < _itemSlots.Length; i++)
         {
             _itemSlots[i].Init(i, this, _inventory, _tooltip, _tooltipPositioner);
@@ -34,9 +33,9 @@ public class InventoryUI : MonoBehaviour
             _inventory.OnInventorySorted += OnInventorySorted;
         }
 
-        if (_sortByNameButton != null) 
+        if (_sortByNameButton != null)
             _sortByNameButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByName); });
-        if (_sortByTypeButton != null) 
+        if (_sortByTypeButton != null)
             _sortByTypeButton.onClick.AddListener(() => { _inventory.Sort(InventorySortType.ByItemType); });
 
         RefreshUI();
@@ -50,9 +49,9 @@ public class InventoryUI : MonoBehaviour
             _inventory.OnInventorySorted -= OnInventorySorted;
         }
 
-        if (_sortByNameButton != null) 
+        if (_sortByNameButton != null)
             _sortByNameButton.onClick.RemoveAllListeners();
-        if (_sortByTypeButton != null) 
+        if (_sortByTypeButton != null)
             _sortByTypeButton.onClick.RemoveAllListeners();
     }
 
@@ -67,7 +66,6 @@ public class InventoryUI : MonoBehaviour
             _itemSlots[index].Clear();
 
 
-            // Если слот был выделен — снять выделение
             if (_selectedSlot == _itemSlots[index])
             {
                 _selectedSlot.SetSelected(false);
@@ -81,7 +79,6 @@ public class InventoryUI : MonoBehaviour
     {
         if (_selectedSlot == slot)
         {
-            // если кликнули по уже выделенному — снимаем выделение
             _selectedSlot.SetSelected(false);
             _selectedSlot = null;
             _itemPreviewUI.Clear();
@@ -98,7 +95,7 @@ public class InventoryUI : MonoBehaviour
             _selectedSlot.SetSelected(true);
             _itemPreviewUI.Show(slot.CurrentItem);
         }
-            
+
     }
 
     public void ClearSelectionIfSlot(int index)
@@ -112,7 +109,6 @@ public class InventoryUI : MonoBehaviour
 
     private void OnInventorySorted(InventorySortType sortType)
     {
-        // при сортировке проще перерисовать всё
         RefreshUI();
     }
 
@@ -123,14 +119,13 @@ public class InventoryUI : MonoBehaviour
         {
             IItemInstance item = (i < _inventory.Size) ? _inventory.Items[i] : null;
 
-            if (item != null) 
+            if (item != null)
                 _itemSlots[i].SetItem(item);
-            else 
+            else
                 _itemSlots[i].Clear();
         }
     }
 
-    // SwapSlots: логика объединения стека / swap / move
     public void SwapSlots(ItemSlotUI fromSlot, ItemSlotUI toSlot)
     {
         if (fromSlot == null || toSlot == null) return;
@@ -144,7 +139,6 @@ public class InventoryUI : MonoBehaviour
         int fromIndex = fromSlot.Index;
         int toIndex = toSlot.Index;
 
-        // 1) Если стеки и можно объединить — используем MergeStacks
         if (fromItem is IStackable && toItem is IStackable)
         {
             var fromStack = fromItem as IStackable;
@@ -157,17 +151,15 @@ public class InventoryUI : MonoBehaviour
             }
         }
 
-        // 2) Если целевой пустой - move
         if (toItem == null)
         {
             _inventory.MoveItem(fromIndex, toIndex);
             return;
         }
 
-        // 3) Обычный swap
         _inventory.SwapItems(fromIndex, toIndex);
     }
-    
+
     public void OnDropButtonPressed()
     {
         if (_selectedSlot == null) return;

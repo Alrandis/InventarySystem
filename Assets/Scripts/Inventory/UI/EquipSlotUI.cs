@@ -19,7 +19,6 @@ public enum EquipSlotType
 
 public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragHandler
 {
-    // —уществующие пол€
     [SerializeField] private EquipSlotType _slotType;
 
     private EquipManager _equipManager;
@@ -74,7 +73,7 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragH
         {
             if (placeholder && item != null)
             {
-                _itemIcon.sprite = item.ItemData.Icon; // можем сделать особую иконку, если хочешь
+                _itemIcon.sprite = item.ItemData.Icon; 
             }
             else
             {
@@ -104,7 +103,6 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragH
 
         if (eventData.clickCount == 1)
         {
-            // ”правление выделением только через InventoryUI
             if (_inventoryUI != null)
             {
                 _inventoryUI.SelectSlot(this);
@@ -113,7 +111,6 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragH
 
     }
 
-    // ќтпускаем предмет с экипировки (в инвентарь или в пустое место)
     public void OnEndDrag(PointerEventData eventData)
     {
         if (_draggedIcon != null)
@@ -122,7 +119,6 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragH
         if (_currentItem == null)
             return;
 
-        // ищем куда дропнули
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
@@ -135,18 +131,15 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragH
 
         if (targetSlot != null)
         {
-            // попытка поместить предмет в инвентарь
             var old = targetSlot.ReplaceItemInInventory(_currentItem);
 
             if (old != null)
             {
-                // если слот был зан€т, мен€ем местами
                 Equip(old);
                 _equipManager.EquipItem(old);
             }
             else
             {
-                // если слот был пуст Ч снимаем предмет
                 Clear();
                 _equipManager.UnequipItem(SlotType);
             }
@@ -157,7 +150,6 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragH
         _draggedIcon = null;
     }
 
-    // DROP: из инвентар€ -> экипировка
     public void OnDrop(PointerEventData eventData)
     {
         var dragged = eventData.pointerDrag;
@@ -186,4 +178,3 @@ public class EquipSlotUI : SlotUI, IPointerClickHandler, IDropHandler, IEndDragH
         itemSlot.SetSelected(false);
     }
 }
-

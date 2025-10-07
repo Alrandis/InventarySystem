@@ -42,6 +42,8 @@ public class PickupItem : MonoBehaviour
         {
             PotionItem potion => new PotionInstance(potion, _stackAmount),
 
+            QuestItem quest => new QuestInstance(quest),
+
             WeaponItem weapon => new WeaponInstance(
                 weapon,
                 Random.Range(weapon.DamageMin, weapon.DamageMax),

@@ -30,8 +30,8 @@ public class ItemPreviewUI : MonoBehaviour
         {
             _currentPreview = Instantiate(item.ItemData.Prefab, _previewRoot);
             Debug.Log($"Модель предмета создана {_currentPreview}");
-            _currentPreview.layer = LayerMask.NameToLayer("ItemPreview");
-            _currentPreview.transform.localPosition = Vector3.zero;
+            foreach (Transform child in _currentPreview.GetComponentsInChildren<Transform>())
+                child.gameObject.layer = LayerMask.NameToLayer("ItemPreview"); _currentPreview.transform.localPosition = Vector3.zero;
             _currentPreview.transform.localRotation = Quaternion.identity;
             _currentPreview.transform.localScale = Vector3.one;
             _modelRotator.TransformPrefab = _currentPreview.transform;

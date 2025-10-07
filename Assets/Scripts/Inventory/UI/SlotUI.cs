@@ -34,7 +34,7 @@ public abstract class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
     public virtual void SetSelected(bool selected)
     {
         _isSelected = selected;
-        if (_selectionHighlight) 
+        if (_selectionHighlight)
             _selectionHighlight.SetActive(_isSelected);
     }
 
@@ -42,14 +42,12 @@ public abstract class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler
     {
         if (_currentItem == null) return;
 
-        // создаём визуал и передаём в InventoryUI
         _draggedIcon = new GameObject("DraggedIcon").AddComponent<Image>();
         _draggedIcon.raycastTarget = false;
         _draggedIcon.sprite = _itemIcon.sprite;
         _draggedIcon.transform.SetParent(_canvas.transform, false);
         _draggedIcon.transform.SetAsLastSibling();
 
-        // масштаб/размер
         _draggedIcon.rectTransform.sizeDelta = _itemIcon.rectTransform.sizeDelta;
     }
 

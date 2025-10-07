@@ -8,7 +8,7 @@ using static UnityEditor.Progress;
 
 public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
-   
+
     [SerializeField] private TextMeshProUGUI _stackText;
     [SerializeField] private Button _dropButton;
 
@@ -17,7 +17,7 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
 
     private Inventory _inventory;
 
-    public event Action OnDropClicked; // событие наружу
+    public event Action OnDropClicked; 
     public event Action<ItemSlotUI> OnClicked;
     public int Index { get; private set; }
 
@@ -25,8 +25,8 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
     {
         base.Awake();
 
-        _dropButton.onClick.AddListener(() => {OnDropClicked?.Invoke();});
-        _dropButton.gameObject.SetActive(false); // скрыта по умолчанию
+        _dropButton.onClick.AddListener(() => { OnDropClicked?.Invoke(); });
+        _dropButton.gameObject.SetActive(false);
     }
 
     public void Init(int index, InventoryUI inventoryUI, Inventory inventory, ItemTooltip tooltip, ItemTooltipPositioner tooltipPositioner)
@@ -43,7 +43,7 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
         _currentItem = item;
         if (item == null)
         {
-            Clear(); // Clear() внутри вызывает Deselect()
+            Clear(); 
             return;
         }
 
@@ -71,7 +71,7 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
     public override void SetSelected(bool selected)
     {
         base.SetSelected(selected);
-        if(_dropButton != null)
+        if (_dropButton != null)
             _dropButton.gameObject.SetActive(_isSelected);
     }
 
@@ -103,11 +103,10 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
 
     private void HandleSingleClick()
     {
-        // Управление выделением только через InventoryUI
         if (_inventoryUI != null)
         {
             _inventoryUI.SelectSlot(this);
-        } 
+        }
     }
 
     private void HandleDoubleClick()
@@ -124,7 +123,6 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
         if (_draggedIcon != null)
             Destroy(_draggedIcon.gameObject);
 
-        // raycast на UI под курсором
         var results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, results);
 
@@ -135,7 +133,6 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
             {
                 if (equipSlot.CanEquip(_currentItem))
                 {
-                    // Перемещаем предмет в слот экипировки
                     equipSlot.OnDrop(eventData);
                     break;
                 }
@@ -160,20 +157,16 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
     }
 
 
-    // Убирает предмет из модели Inventory (если есть) и возвращает этот IItemInstance.
-    // Если слот был только UI-only (нет ссылки на Inventory), то снимает визуал и возвращает локальный _currentItem.
     public IItemInstance ExtractItemFromInventory()
     {
-        // Если есть модель — работаем с ней (модель — источник правды)
         if (_inventory != null)
         {
             IItemInstance itemInModel = null;
-            if (Index >= 0 && Index < _inventory.Items.Count) // безопасная проверка
+            if (Index >= 0 && Index < _inventory.Items.Count) 
                 itemInModel = _inventory.Items[Index];
 
             if (itemInModel != null)
             {
-                // Устанавливаем в модели null — это вызовет OnItemChanged и обновит UI через InventoryUI
                 _inventory.SetItemAt(Index, null);
                 return itemInModel;
             }
@@ -181,14 +174,11 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
             return null;
         }
 
-        // fallback: чисто UI-слот (без модели)
         var temp = _currentItem;
         Clear();
         return temp;
     }
 
-    // Помещает newItem в модель в этот слот и возвращает старый предмет (или null).
-    // Используй это, когда нужно "положить" предмет из экипировки в конкретный слот инвентаря.
     public IItemInstance ReplaceItemInInventory(IItemInstance newItem)
     {
         if (_inventory != null)
@@ -197,17 +187,16 @@ public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointe
             if (Index >= 0 && Index < _inventory.Items.Count)
                 old = _inventory.Items[Index];
 
-            _inventory.SetItemAt(Index, newItem); // обновит модель и вызовет OnItemChanged -> обновит UI
+            _inventory.SetItemAt(Index, newItem); 
             return old;
         }
 
-        // fallback: UI-only
+        
         var oldLocal = _currentItem;
-        SetItem(newItem); // обновляем визуал
+        SetItem(newItem); 
         return oldLocal;
     }
 
-    // Удобный метод-утилита: проверяет, пуст ли слот в модели
     public bool IsEmptyInModel()
     {
         if (_inventory != null)
