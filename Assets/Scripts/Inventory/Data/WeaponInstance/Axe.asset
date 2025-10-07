@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 071bbe6a8b77b564cae1289fdf5fe1f9, type: 3}
+  m_Name: Axe
+  m_EditorClassIdentifier: 
+  Id: 4
+  Name: "\u0411\u043E\u0435\u0432\u043E\u0439 \u0442\u043E\u043F\u043E\u0440\u0438\u043A"
+  Description: "\u041F\u0440\u043E\u0441\u0442\u043E\u0439 \u043D\u043E \u043D\u0430\u0434\u0435\u0436\u043D\u044B\u0439
+    \u0431\u043E\u0435\u0432\u043E\u0439 \u0442\u043E\u043F\u043E\u0440\u0438\u043A.
+    \u041B\u0435\u0433\u043E\u043A \u0432 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0438
+    \u0438 \u0443\u043D\u0438\u0432\u0435\u0440\u0441\u0430\u043B\u0435\u043D \u0432
+    \u043F\u043E\u0445\u043E\u0434\u0435"
+  Icon: {fileID: 21300000, guid: 179bfd930f6b5664bbd29b666d963667, type: 3}
+  Prefab: {fileID: 813063878196885496, guid: 28771155edf335c4683ac2cb9caac324, type: 3}
+  ItemType: 0
+  IsStackable: 0
+  DefaultDamage: 13
+  DefaultAttackSpeed: 1
+  IsTwoHanded: 0
+  DamageMin: 10
+  DamageMax: 15
