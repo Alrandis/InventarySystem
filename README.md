@@ -73,7 +73,7 @@
 
 ![RoomPickUp Gif](screenshots/RoomPickUp.gif)
 
-Использование зелий
+Использование зелий и удаление, когда кончится стек
 
 ![UsePotion Gif](screenshots/UsePotion.gif)
 
