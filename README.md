@@ -1,5 +1,6 @@
 # InventarySystem
 Система инвентаря. 
+
 Игра представляет собой одну комнату, в которой есть разные предметы, которые можно подбирать. Эти вещи разделяются на ветринные и исчезающие, ветринные можно подбирать бесконечно, а обычные исчезают после подбора. Все ассеты были созданы самостоятельно в Blender 3d ранее. Инвентарь разделен на несколько областей. Сам инвентарь, экипировка, характеристики игрока, панель превью и информация о предмете. Скрипты писались так, чтобы было легко добавлять новые типы предметов не меняя старые скрипты, UI имеет слабую связь с логикой. 
 Проект реализовавает инвентарь с системой drag and drop. Инвентарь имеет фиксированное колличество слотов, где каждый слот может занимать только один предмет. Можно перетаскивать предметы из инвентаря в экипируемые слоты для надевания предметов. Есть система превью, которая отображает 3д модель, которая вращается автоматически и может вращаться мышкой (вдохновлено Skyrim) и данные о предмете. При экипировании у игрока повышается урон, если экипировано оружие и броня, при экипировании щитов и элементов доспехов. Можно испльзовать предметы, на пример зелья, и они являются стековыми. Так же при необходимости можно выбросить предмет нажав на соответственную кнопку. Можно отсортировать по имени или по типу предметов.
 
@@ -19,46 +20,46 @@
 - Реализованы 2 кнопки, что делают сортировку в инвентаре. Сортировка оп имени (алфавиту) и типу. Тип берется из enam в базовом классе от которого создаются остальные виды предметов.
 
 # Изображения и гиф. Гиф могут не прогрузится сразу, по этому лучше подождать.
-![Inventory](Screenshots/Inventory.png) 
+![Inventory](screenshots/Inventory.png) 
 Инвентарь
 
-![Objects1](Screenshots/Objects1.png) 
-![Objects2](Screenshots/Objects2.png)
-![Objects3](Screenshots/Objects3.png) 
+![Objects1](screenshots/Objects1.png) 
+![Objects2](screenshots/Objects2.png)
+![Objects3](screenshots/Objects3.png) 
 Разные предметы, что можно подобрать
 
-![Previu](Screenshots/Previu.png)
+![Previu](screenshots/Previu.png)
 Панель привью отображающая информацию о предмете
 
-![PickUp Gif](Screenshots/PickUp.gif) 
+![PickUp Gif](screenshots/PickUp.gif) 
 Подбор предметов из игрового мира
 
-![DragAndDrop Gif](Screenshots/DragAndDrop.gif)
+![DragAndDrop Gif](screenshots/DragAndDrop.gif)
 Перетаскивание предметов по инвенторю с заменой, на пустой слот и стеков
 
-![DropItem Gif](Screenshots/DropItem.gif)
+![DropItem Gif](screenshots/DropItem.gif)
 Выбрасывание предмета через кнопку
 
-![EquipExample Gif](Screenshots/EquipExample.gif)
+![EquipExample Gif](screenshots/EquipExample.gif)
 Пример экипирования
 
-![EquipToHanded Gif](Screenshots/EquipToHanded.gif)
+![EquipToHanded Gif](screenshots/EquipToHanded.gif)
 Пример экипирования двуручника с очисткой слотов
 
-![OnEquipment Gif](Screenshots/OnEquipment.gif)
+![OnEquipment Gif](screenshots/OnEquipment.gif)
 Снятие предметов из экипировки
 
-![PreviuRotate Gif](Screenshots/PreviuRotate.gif)
+![PreviuRotate Gif](screenshots/PreviuRotate.gif)
 Поворот предмета в превью панели
 
-![PotionStack Gif](Screenshots/PotionStack.gif)
+![PotionStack Gif](screenshots/PotionStack.gif)
 Подбирание и использования зелий
 
-![RoomPickUp Gif](Screenshots/RoomPickUp.gif)
+![RoomPickUp Gif](screenshots/RoomPickUp.gif)
 Подбирание предметов в комнате
 
-![UsePotion Gif](Screenshots/UsePotion.gif)
+![UsePotion Gif](screenshots/UsePotion.gif)
 Использование зелий
 
-![ScriptDemo Gif](Screenshots/ScriptDemo.gif)
+![ScriptDemo Gif](screenshots/ScriptDemo.gif)
 Структура скриптов 
