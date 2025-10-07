@@ -29,40 +29,53 @@
 ![Objects3](screenshots/Objects3.png) 
 Разные предметы, что можно подобрать
 
-![Previu](screenshots/Previu.png)
 Панель привью отображающая информацию о предмете
+
+![Previu](screenshots/Previu.png)
+
 
 # Гиф. Гифки могут не прогрузится сразу, по этому лучше подождать.
 
 Подбор предметов из игрового мира
+
 ![PickUp Gif](screenshots/PickUp.gif) 
 
 Перетаскивание предметов по инвенторю с заменой, на пустой слот и стеков
+
 ![DragAndDrop Gif](screenshots/DragAndDrop.gif)
 
 Выбрасывание предмета через кнопку
+
 ![DropItem Gif](screenshots/DropItem.gif)
 
 Пример экипирования
+
 ![EquipExample Gif](screenshots/EquipExample.gif)
 
 Пример экипирования двуручника с очисткой слотов
+
 ![EquipToHanded Gif](screenshots/EquipToHanded.gif)
 
 Снятие предметов из экипировки
+
 ![OnEquipment Gif](screenshots/OnEquipment.gif)
 
 Поворот предмета в превью панели
+
 ![PreviuRotate Gif](screenshots/PreviuRotate.gif)
 
 Подбирание и использования зелий
+
 ![PotionStack Gif](screenshots/PotionStack.gif)
 
 Подбирание предметов в комнате
+
 ![RoomPickUp Gif](screenshots/RoomPickUp.gif)
 
 Использование зелий
+
 ![UsePotion Gif](screenshots/UsePotion.gif)
 
 Структура скриптов 
+
 ![ScriptDemo Gif](screenshots/ScriptDemo.gif)
