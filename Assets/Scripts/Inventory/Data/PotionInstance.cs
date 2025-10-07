@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class PotionInstance : IItemInstance, IStackable, IUsableItem
 {
     private readonly PotionItem _data;
@@ -10,6 +13,20 @@ public class PotionInstance : IItemInstance, IStackable, IUsableItem
         _data = data;
         _currentStack = Mathf.Clamp(amount, 1, data.MaxStack);
     }
+
+    public Dictionary<string, string> GetStats()
+    {
+        var stats = new Dictionary<string, string>
+        {
+            { "Стек", CurrentStack.ToString() },
+            { "Макс. Стек", MaxStack.ToString() },
+            { "Восстановление HP", Data.HealAmount.ToString() }
+        };
+        return stats;
+    }
+
+    // Реализация IUsableItem
+    public event Action<IItemInstance> OnUsed;
 
     // Реализация IItemInstance
     public ItemData ItemData => _data;
@@ -39,8 +56,13 @@ public class PotionInstance : IItemInstance, IStackable, IUsableItem
 
         _currentStack--;
 
-        // Если стек пуст, можно уведомить инвентарь удалить предмет
-        // Для UI лучше через событие
+        // Уведомляем, что предмет использован
+        OnUsed?.Invoke(this);
+    }
+
+    public void RemoveFromStack(int amount)
+    {
+        _currentStack = Mathf.Max(0, _currentStack - amount);
     }
 }
 

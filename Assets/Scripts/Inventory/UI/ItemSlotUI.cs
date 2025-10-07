@@ -1,80 +1,211 @@
-using UnityEngine;
-using UnityEngine.UI;
+using System;
+using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using static UnityEditor.Progress;
 
-// Каждая ячейка инвентаря
-public class ItemSlotUI : MonoBehaviour, IPointerClickHandler
+public class ItemSlotUI : SlotUI, IPointerClickHandler, IEndDragHandler, IPointerEnterHandler, IPointerExitHandler
 {
-    [SerializeField] private Image _itemIcon;         // Слот для иконки
-    [SerializeField] private TextMeshProUGUI _stackText; // Текст для количества в стеке
-    [SerializeField] private GameObject _selectionHighlight; // Подсветка выбранного предмета
 
-    private IItemInstance _currentItem;               // Предмет, который хранится в этом слоте
-    private bool _isSelected = false;
+    [SerializeField] private TextMeshProUGUI _stackText;
+    [SerializeField] private Button _dropButton;
+
+    private ItemTooltip _tooltip;
+    private ItemTooltipPositioner _tooltipPositioner;
+
+    private Inventory _inventory;
+
+    public event Action OnDropClicked; 
+    public event Action<ItemSlotUI> OnClicked;
+    public int Index { get; private set; }
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        _dropButton.onClick.AddListener(() => { OnDropClicked?.Invoke(); });
+        _dropButton.gameObject.SetActive(false);
+    }
+
+    public void Init(int index, InventoryUI inventoryUI, Inventory inventory, ItemTooltip tooltip, ItemTooltipPositioner tooltipPositioner)
+    {
+        Index = index;
+        _inventoryUI = inventoryUI;
+        _inventory = inventory;
+        _tooltip = tooltip;
+        _tooltipPositioner = tooltipPositioner;
+    }
 
     public void SetItem(IItemInstance item)
     {
         _currentItem = item;
-
-        if (_currentItem != null)
+        if (item == null)
         {
-            _itemIcon.sprite = _currentItem.ItemData.Icon;
-            _itemIcon.enabled = true;
+            Clear(); 
+            return;
+        }
 
-            if (_currentItem is IStackable stackable && stackable.CurrentStack > 1)
-            {
-                _stackText.text = stackable.CurrentStack.ToString();
-                _stackText.enabled = true;
-            }
-            else
-            {
-                _stackText.enabled = false;
-            }
+        _itemIcon.sprite = item.ItemData.Icon;
+        _itemIcon.enabled = true;
+
+        if (item is IStackable stackable)
+        {
+            _stackText.text = stackable.CurrentStack.ToString();
+            _stackText.enabled = true;
         }
         else
         {
-            Clear();
+            _stackText.enabled = false;
         }
     }
 
-    public void Clear()
+    public override void Clear()
     {
-        _currentItem = null;
-        _itemIcon.sprite = null;
-        _itemIcon.enabled = false;
+        base.Clear();
         _stackText.text = "";
         _stackText.enabled = false;
-        Deselect();
     }
 
-    public void Select()
+    public override void SetSelected(bool selected)
     {
-        _isSelected = true;
-        _selectionHighlight.SetActive(true);
+        base.SetSelected(selected);
+        if (_dropButton != null)
+            _dropButton.gameObject.SetActive(_isSelected);
     }
 
-    public void Deselect()
+    public IItemInstance GetItem() => _currentItem;
+
+    public void OnPointerEnter(PointerEventData eventData)
     {
-        _isSelected = false;
-        _selectionHighlight.SetActive(false);
+        if (_currentItem != null)
+        {
+            _tooltip.Show(_currentItem.ItemData.Name, _currentItem.ItemData.Description, Input.mousePosition);
+            _tooltipPositioner.UpdatePosition(Input.mousePosition);
+        }
     }
 
-    // Клик по слоту
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        _tooltip.Hide();
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         if (_currentItem == null) return;
 
-        // Используем предмет, если он реализует IUsableItem
+        if (eventData.clickCount == 1)
+            HandleSingleClick();
+        else if (eventData.clickCount == 2)
+            HandleDoubleClick();
+    }
+
+    private void HandleSingleClick()
+    {
+        if (_inventoryUI != null)
+        {
+            _inventoryUI.SelectSlot(this);
+        }
+    }
+
+    private void HandleDoubleClick()
+    {
         if (_currentItem is IUsableItem usable)
         {
             usable.Use();
+            if (_inventory != null) _inventory.HandleItemUsed(_currentItem);
+        }
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (_draggedIcon != null)
+            Destroy(_draggedIcon.gameObject);
+
+        var results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        foreach (var r in results)
+        {
+            var equipSlot = r.gameObject.GetComponent<EquipSlotUI>();
+            if (equipSlot != null)
+            {
+                if (equipSlot.CanEquip(_currentItem))
+                {
+                    equipSlot.OnDrop(eventData);
+                    break;
+                }
+            }
         }
 
-        // Можно здесь добавить логику выделения
-        if (!_isSelected)
-            Select();
-        else
-            Deselect();
+        DraggedIcon = null;
+
+        ItemSlotUI targetSlot = null;
+        foreach (var r in results)
+        {
+            targetSlot = r.gameObject.GetComponent<ItemSlotUI>();
+            if (targetSlot != null) break;
+        }
+
+        if (targetSlot != null)
+        {
+            if (_inventoryUI != null) _inventoryUI.SwapSlots(this, targetSlot);
+        }
+
+        DraggedIcon = null;
     }
+
+
+    public IItemInstance ExtractItemFromInventory()
+    {
+        if (_inventory != null)
+        {
+            IItemInstance itemInModel = null;
+            if (Index >= 0 && Index < _inventory.Items.Count) 
+                itemInModel = _inventory.Items[Index];
+
+            if (itemInModel != null)
+            {
+                _inventory.SetItemAt(Index, null);
+                return itemInModel;
+            }
+
+            return null;
+        }
+
+        var temp = _currentItem;
+        Clear();
+        return temp;
+    }
+
+    public IItemInstance ReplaceItemInInventory(IItemInstance newItem)
+    {
+        if (_inventory != null)
+        {
+            IItemInstance old = null;
+            if (Index >= 0 && Index < _inventory.Items.Count)
+                old = _inventory.Items[Index];
+
+            _inventory.SetItemAt(Index, newItem); 
+            return old;
+        }
+
+        
+        var oldLocal = _currentItem;
+        SetItem(newItem); 
+        return oldLocal;
+    }
+
+    public bool IsEmptyInModel()
+    {
+        if (_inventory != null)
+        {
+            if (Index >= 0 && Index < _inventory.Items.Count)
+                return _inventory.Items[Index] == null;
+            return true;
+        }
+        return _currentItem == null;
+    }
+
 }
