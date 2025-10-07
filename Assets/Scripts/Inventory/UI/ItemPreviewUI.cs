@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class ItemPreviewUI : MonoBehaviour
 {
@@ -11,7 +10,6 @@ public class ItemPreviewUI : MonoBehaviour
     [SerializeField] private GameObject _statPrefab;
 
     [SerializeField] private Transform _previewRoot;
-    [SerializeField] private float _rotationSpeed = 50f;
     [SerializeField] private ModelRotator _modelRotator;
 
     [SerializeField] private GameObject _currentPreview;
