@@ -32,11 +32,14 @@
 ![Previu](screenshots/Previu.png)
 Панель привью отображающая информацию о предмете
 
-Гиф. Гифки могут не прогрузится сразу, по этому лучше подождать.
+# Гиф. Гифки могут не прогрузится сразу, по этому лучше подождать.
+
 ![PickUp Gif](screenshots/PickUp.gif) 
+
 Подбор предметов из игрового мира
 
 ![DragAndDrop Gif](screenshots/DragAndDrop.gif)
+
 Перетаскивание предметов по инвенторю с заменой, на пустой слот и стеков
 
 ![DropItem Gif](screenshots/DropItem.gif)
